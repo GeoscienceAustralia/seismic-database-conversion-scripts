@@ -1,0 +1,13 @@
+Source,Type,Dependence,Status,Year,Month,Day,Hour,Minute,Second,Time code,Time Corr,Longitude,Latitude,Depth,Depth Code,Mag Type,Mag Value,Time Unc,Semi Major,Semi Minor,Smaj Azim,Depth Unc,Arrivals,RMS,Stations,Gap,Gap 2,Nearest,Furthest,Place,Magnitude text
+Source,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
+EHB,local,None,Preferred,2000,10,11,19,27,16.69,AWST,8,112.839,20.027,19.5,D,Mw,5.1,,7.2,4.3,65,4.4,105,0.88,,53,63.3,8.5,,"Off Exmouth Gulf, WA",mb 5.1 ISC 49 MS 4.4 ISC 15 Mw 5.1 HRVD 
+EHB,local,Mainshock,Preferred,2000,12,25,13,24,24.4,UTC,0,120.052,42.509,9.6,D,Mw,5.7,,4.7,3.7,46,2.6,231,0.88,,30.9,43.3,8.2,,"South of Australia, Southern Ocean",mb 5.6 ISC 33 MS 5.5 ISC 107 Mw 5.7 HRVD 
+EHB,local,Aftershock,Preferred,2001,9,14,15,18,30.71,ACST,9.5,133.739,19.951,11,C,mb,5.1,,,,,,61,1.04,,116,,0.6,,"Tennant Creek, NT",
+ISC,local,Mainshock,Preferred,2001,9,28,2,54,52.68,AWST,8,117.319,30.399,2,G,ML,5,0.26,3.7,3.3,90,,72,1.33,72,,,0.57,151.39,"Burakin, WA",ML 5.0 AUST mb 5.0 ISC 25 MS 3.3 ISC 2 
+ISC,local,Mainshock,Preferred,2001,10,19,17,43,20.38,AWST,8,120.628,33.712,10,N,mb,5.1,0.25,4.6,3.3,0,,95,1.25,97,,,2.57,148.62,"Ravensthorpe, WA",mb 5.1 ISC 31 MS 4.4 ISC 11 
+EHB,local,Aftershock,Preferred,2001,12,12,17,52,40.66,AWST,8,124.763,42.715,11.2,,Ms,5.1,,,,,,72,1.03,,68.6,,12.2,,South of Australia,
+EHB,local,Aftershock,Preferred,2001,12,13,7,28,11.03,AWST,8,124.735,42.73,11.4,,Mw,5.4,,,,,,73,1.04,,42.3,,12.2,,South of Australia,
+AUST,local,Mainshock,Preferred,2002,3,5,1,47,38.9,AWST,8,117.084,30.479,0.5,,ML,5,0.6,2.2,1.9,0,5.5,25,,14,,,,,"Burakin, WA",ML 5.0 AUST
+AUST,local,Foreshock,Preferred,2004,2,11,9,17,59,ACST,9.5,129.871,22.738,12.8,,ML,5,2.9,8.9,7.2,0,25,,,19,,,,,"Mt Redvers, NT",
+MEL,local,None,Preferred,2006,12,14,17,23,7.8,AEDT,11,143.69,42.566,15,G,ML,5,1,6.7,6.5,0,11,18,1.08,10,263,,1.494,5.578,"141 km W of Strahan, Tas",ML 5.0 MEL 7 
+ADE,local,None,Preferred,2010,4,5,11,23,,AWST,8,125.498,41.762,,,ML,5.1,,,,,,,,,,,,,"SSE of Esperance, Southern Ocean",ML 5.1 ADE 
