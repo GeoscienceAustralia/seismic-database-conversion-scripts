@@ -2,23 +2,8 @@
 
 import csv
 import os
-import pisces.schema.css3 as css3
+from css_types2 import event30, remark30, origerr30, origin30
 from datetime import datetime
-
-class Event(css3.Event):
-    __tablename__ = 'event'
-
-
-class Remark(css3.Remark):
-    __tablename__ = 'remark'
-
-
-class Origerr(css3.Origerr):
-    __tablename__ = 'origerr'
-
-
-class Origin(css3.Origin):
-    __tablename__ = 'origin'
 
 
 def mk_int(s):
@@ -74,53 +59,61 @@ with open('GGcat_big_2000.csv', 'rb') as csvfile, \
                       mk_int(row['Second']) or 0,
                       int(((mk_float(row['Second']) or 0) % 1) * 1000000))  # microsecond
 
-        # Event
-        evi = Event(evid=id,
-                    evname=row['Place'],
-                    prefor=id,
-                    auth=row['Source'],
-                    commid=id,
-                    lddate=dt)
-        evi_out.write(str(evi) + os.linesep)
+        # # Event
+        evi = event30(evid=id,
+                      evname=row['Place'][:15],
+                      prefor=id,
+                      auth=row['Source'][:15],
+                      commid=id)
+        evi_out.write(evi.create_css_string())
 
         # Remark
-        rem = Remark(commid=id,
-                     lineno=1,  # expecting only 1 line per remark, not multiple
-                     remark=row['Magnitude text'],
-                     lddate=dt)
-        rem_out.write(str(rem) + os.linesep)
+        rem = remark30(commid=id,
+                       lineno=1,  # expecting only 1 line per remark, not multiple
+                       remark=row['Magnitude text'][:80])
+        rem_out.write(rem.create_css_string())
 
         # Origerr
-        oer = Origerr(orid=id,
-                      sdobs=mk_float(row['RMS']),
-                      smajax=mk_float(row['Semi Major']),
-                      sminax=mk_float(row['Semi Minor']),
-                      strike=0.000000,
-                      sdepth=mk_float(row['Depth Unc']),
-                      stime=mk_float(row['Time Unc']),
-                      conf=0.5,  # no confidence value is available
-                      commid=id,
-                      lddate=dt)
-        oer_out.write(str(oer) + os.linesep)
+        oer = origerr30(orid=id, commid=id)
 
-        # Origin
-        ori = Origin(orid=id,
+        if mk_float(row['RMS']) is not None:
+            oer.sdobs = mk_float(row['RMS'])
+        if mk_float(row['Semi Major']) is not None:
+            oer.smajax = mk_float(row['Semi Major'])
+        if mk_float(row['Semi Minor']) is not None:
+            oer.sminax = mk_float(row['Semi Minor'])
+        if mk_float(row['Smaj Azim']) is not None:
+            oer.strike = mk_float(row['Smaj Azim'])
+        if mk_float(row['Depth Unc']) is not None:
+            oer.sdepth = mk_float(row['Depth Unc'])
+        if mk_float(row['Time Unc']) is not None:
+            oer.stime = mk_float(row['Time Unc'])
+
+        oer_out.write(oer.create_css_string())
+
+        # # Origin
+        ori = origin30(orid=id,
                      evid=id,
-                     lat=mk_float(row['Latitude']) * -1.0,  # GGCat doesn't have -ve lat for south
-                     lon=mk_float(row['Longitude']),
-                     depth=mk_float(row['Depth']),
                      time=(dt - datetime(1970, 1, 1)).total_seconds(),  # epoch
                      jdate=julday(dt),
-                     ndef=mk_int(row['Arrivals']),
                      etype=etype_str(event_types[row['Type'].strip()] if row['Type'].strip() in event_types
                                       else '',
                                       depends[row['Dependence'].strip()] if row['Dependence'].strip() in depends
                                       else ''),
-                     dtype=depth_types[row['Depth Code'].strip()] if row['Depth Code'].strip() in depth_types else None,
                      algorithm='GGCat',
                      auth=row['Source'],
-                     commid=id,
-                     lddate=dt)
+                     commid=id)
+
+        if mk_float(row['Latitude']) is not None:
+            ori.lat = mk_float(row['Latitude']) * -1.0  # GGCat doesn't have -ve lat for south
+        if mk_float(row['Longitude']) is not None:
+            ori.lon = mk_float(row['Longitude'])
+        if mk_float(row['Depth']) is not None:
+            ori.depth = mk_float(row['Depth'])
+        if mk_int(row['Arrivals']) is not None:
+            ori.ndef = mk_int(row['Arrivals'])
+        if row['Depth Code'].strip() and row['Depth Code'].strip() in depth_types:
+            ori.dtype = depth_types[row['Depth Code'].strip()]
 
         mag_type = row['Mag Type'].upper()
         if mag_type == 'ML':
@@ -136,33 +129,38 @@ with open('GGcat_big_2000.csv', 'rb') as csvfile, \
             ori.msid = msid
             ori.ms = mk_float(row['Mag Value'])
 
-        ori_out.write(str(ori) + os.linesep)
+        ori_out.write(ori.create_css_string())
+
 
         id += 1
 
 print("Event:")
+event = event30()
 with open('out.event', 'r') as evi_in:
     for line in evi_in:
-        print Event.from_string(line)
+        event.from_string(line)
+        print(event.create_css_string()),
 
 print("Remark:")
+remark = remark30()
 with open('out.remark', 'r') as rem_in:
     for line in rem_in:
-        print Remark.from_string(line)
+        remark.from_string(line)
+        print remark.create_css_string(),
 
 print("Origerr:")
+origerr = origerr30()
 with open('out.origerr', 'r') as oer_in:
     for line in oer_in:
-        print Origerr.from_string(line)
+        origerr.from_string(line)
+        print origerr.create_css_string(),
 
 print("Origin:")
+origin = origin30()
 with open('out.origin', 'r') as ori_in:
     for line in ori_in:
-        print Origin.from_string(line)
-
-# Notes:
-# - evname in Pisces is 32 wide, in the spec it's 15
-# - lddate is datetime %y-%m-%d %H:%M:%S in Pisces, in spec it's either a17 date, or %17.5f epoch time, in new spec it says any valid ORACLE date range??
+        origin.from_string(line)
+        print origin.create_css_string(),
 
 
 # Example event output:
