@@ -9,8 +9,8 @@ import sys,os,string,time
 
 class origin30:
    def __init__(self, lat=-999.0, lon=-999.0, depth=-999.0, time=-9999999999.999, orid=1, evid=1, jdate=-1, nass=-1,
-                ndef=-1, etype="-", depdp=-999.0, dtype="-", mb=-999.0, mbid=-1, ms=-999.0, msid=-1, mlid=-1,
-                algorithm="-", auth="-", commid=-1, lddate="-"):
+                ndef=-1, ndp=-1, grn=-1, srn=-1, etype="-", depdp=-999.0, dtype="-", mb=-999.0, mbid=-1, ms=-999.0,
+                msid=-1, ml=-999.0, mlid=-1, algorithm="-", auth="-", commid=-1, lddate="-"):
       self.lat = lat
       self.lon = lon
       self.depth = depth
@@ -20,9 +20,9 @@ class origin30:
       self.jdate = jdate
       self.nass = nass
       self.ndef = ndef
-      self.ndp=-1
-      self.grn=-1
-      self.srn=-1
+      self.ndp = ndp
+      self.grn = grn
+      self.srn = srn
       self.etype = etype
       self.depdp = depdp
       self.dtype = dtype
@@ -30,7 +30,7 @@ class origin30:
       self.mbid = mbid
       self.ms = ms
       self.msid = msid
-      self.ml=-999.0
+      self.ml = ml
       self.mlid = mlid
       self.algorithm = algorithm
       self.auth = auth
