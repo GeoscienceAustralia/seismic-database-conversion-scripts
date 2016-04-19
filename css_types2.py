@@ -5,7 +5,7 @@ import sys,os,string,time
 #
 # From Spiro Spiliopoulos to Mark Leonard November 2015
 # December 2015 & January 2016 Mark Leonard added a few new table types
-#
+# March 2016 Jonathan Mettes added a few some tables, constructors and from_string methods
 
 class origin30:
    def __init__(self, lat=-999.0, lon=-999.0, depth=-999.0, time=-9999999999.999, orid=1, evid=1, jdate=-1, nass=-1,
@@ -928,18 +928,19 @@ class instrument30:
 #
 # netmag30 structure
 class netmag30:
-    def __init__(self):
-        self.magid = -1
-        self.net = "-"
-        self.orid = -1
-        self.evid = -1
-        self.magtype = "-"
-        self.nsta = -1
-        self.magnitude = -999.0
-        self.uncertainty = -990.0
-        self.auth = "-"
-        self.commid = -1
-        self.lddate = "-"
+    def __init__(self, magid=-1, net="-", orid=-1, evid=-1, magtype="-", nsta=-1, magnitude=-999.0, uncertainty=-990.0,
+                 auth="-", commid=-1, lddate="-"):
+        self.magid = magid
+        self.net = net
+        self.orid = orid
+        self.evid = evid
+        self.magtype = magtype
+        self.nsta = nsta
+        self.magnitude = magnitude
+        self.uncertainty = uncertainty
+        self.auth = auth
+        self.commid = commid
+        self.lddate = lddate
 
     #def create_css_string(self):
     #  ostring='%8d %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %9.4f %9.4f %9.4f %6.2f %9.4f %8.2f %5.3f %8d %-17s\n' % (self.orid, self.sxx, self.syy, self.szz, self.stt, self.sxy, self.sxz, self.syz, self.stx, self.sty, self.stz, self.sdobs, self.smajax, self.sminax, self.strike, self.sdepth, self.stime, self.conf, self.commid, self.lddate)
@@ -947,6 +948,20 @@ class netmag30:
     def create_css_string(self):
         nstring='%8d %-8s %8d %8d %-6s %8d %7.2f %7.2f %-15s %8d %-17s\n' % (self.magid, self.net, self.orid, self.evid, self.magtype, self.nsta, self.magnitude, self.uncertainty, self.auth, self.commid, self.lddate)
         return nstring
+
+    def from_string(self, line):
+        self.magid = long(line[0:8])
+        self.net = line[9:17]
+        self.orid = long(line[18:26])
+        self.evid = long(line[27:35])
+        self.magtype = line[36:42]
+        self.nsta = int(line[43:51])
+        self.magnitude = float(line[52:59])
+        self.uncertainty = float(line[60:67])
+        self.auth = line[68:83]
+        self.commid = long(line[84:92])
+        self.lddate = line[93:110]
+
 # end netmag30 class
         #
 # event30 structure
