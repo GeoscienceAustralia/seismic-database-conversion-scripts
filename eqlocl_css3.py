@@ -13,7 +13,7 @@ Developed by: Jonathan Mettes - March 2016
 import json
 import glob
 from datetime import datetime, timedelta
-from css_types2 import origin30, origerr30, netmag30
+from css_types2 import origin30, origerr30, netmag30, remark30
 from geopy.distance import vincenty
 import logging
 import sys
@@ -23,8 +23,22 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 GAED_ORIGIN_FILE = 'out.origin'
 GAED_NETMAG_FILE = 'out.netmag'
+GAED_ORIGERR_FILE = 'out.origerr'
+GAED_REMARK_FILE = 'out.remark'
+
+ORIGIN_OUT = 'jo.origin'
+NETMAG_OUT = 'jo.netmag'
+ORIGERR_OUT = 'jo.origerr'
+REMARK_OUT = 'jo.remark'
+
+# the root directory to start searching for eqlocl files
 EQLOCL_ROOT = 'eqlocl/'
 
+# will traverse directories and parse only text files starting with GA, agso, ASC or MUN
+# (to avoid parsing random files)
+FILE_NAME_PATTERN = '/**/[GA|agso|ASC|MUN]*.txt'
+
+accuracy_codes = {'a': 0.95, 'b': 0.8, 'c': 0.7, 'd': 0.6, 'e': 0.5}
 
 def julday(dt):
     tt = dt.timetuple()
@@ -57,32 +71,71 @@ def getval(eqlocl, var):
     else:
         return None
 
+
+def load_db(file, dbtype, method_str):
+    db = []
+    with open(file, 'r') as db_in:
+        for line in db_in:
+            obj = dbtype()
+            method = getattr(obj, method_str)
+            method(line)
+            db.append(obj)
+
+    return db
+
+
+def fill_empty(new=None,
+               old=None,
+               empty_ref=None,
+               key=None):
+    """
+    goes through each property in object and compares it with an empty object as reference
+    if the property is the same, it must be empty
+    if the new object has a different property value, then it must not be empty so use it
+
+    :param new: the new object taken from eqlocl data
+    :param old: existing object from GAED
+    :param empty_ref: an empty CSS3 object initialised with default values (e.g., orid=-1)
+    :param key: the key name (e.g., commid, orid)
+    :return: tuple of old object with changed values, and modifications made
+    """
+    modified = ''
+    if getattr(old, key) == getattr(new, key):  # only do if same record
+        for attr, value in old.__dict__.iteritems():
+            if value == getattr(empty_ref, attr) \
+                    and getattr(new, attr) != getattr(empty_ref, attr):  # old empty, new one isn't
+                setattr(old, attr, getattr(new, attr))
+
+                # add message for each change made
+                modified += attr + ' from ' + str(value) + ' to ' + \
+                            str(getattr(new, attr)) + ', '
+
+    return old, modified
+
+
 def main():
-    # GAED
-    origins = []
-    with open(GAED_ORIGIN_FILE, 'r') as ori_in:
-        for line in ori_in:
-            ori = origin30()
-            ori.from_string(line)
-            origins.append(ori)
+    # load GAED
+    origins = load_db(GAED_ORIGIN_FILE, origin30, 'from_string')
+    origerrs = load_db(GAED_ORIGERR_FILE, origerr30, 'from_string')
+    netmags = load_db(GAED_NETMAG_FILE, netmag30, 'from_string')
+    remarks = load_db(GAED_REMARK_FILE, remark30, 'from_string')
 
-    netmags = []
-    with open(GAED_NETMAG_FILE, 'r') as nmg_in:
-        for line in nmg_in:
-            nmg = netmag30()
-            nmg.from_string(line)
-            netmags.append(nmg)
+    origin_out = file(ORIGIN_OUT, 'w')
+    origerr_out = file(ORIGERR_OUT, 'w')
+    netmag_out = file(NETMAG_OUT, 'w')
+    remark_out = file(REMARK_OUT, 'w')
 
-    # set ids to ones after the last largest
-    # will increment when inserting new entries
-    orid = max(origins, key=lambda origin: origin.orid).orid + 1
+    # used for its default values for comparison
+    emptyoer = origerr30()
+
+    # set ids to ones after the last largest, will increment when inserting new entries
+    originid = orid = max(origins, key=lambda origin: origin.orid).orid + 1
     mlid = max(origins, key=lambda origin: origin.mlid).mlid + 1
     mbid = max(origins, key=lambda origin: origin.mbid).mbid + 1
     msid = max(origins, key=lambda origin: origin.msid).msid + 1
 
-    # will traverse directories and parse only text files starting with GA, agso, ASC or MUN
-    # (to avoid parsing random files)
-    for filename in glob.glob(EQLOCL_ROOT + '/**/[GA|agso|ASC|MUN]*.txt'):
+    # go through each file in EQLOCL path that matches the file name pattern (e.g., contains 'MUN' and ends in '.txt')
+    for filename in glob.glob(EQLOCL_ROOT + FILE_NAME_PATTERN):
         eqlocl = {}
         with open(filename, 'r') as eqlocl_file:
             for line in eqlocl_file:
@@ -128,10 +181,16 @@ def main():
             # how close together is the lat/long between the origin and arrival
             pos_diff = abs(vincenty((float(closest_origin.lat), float(closest_origin.lon)), (eqlocl_lat, eqlocl_lon)))
 
+            # if time_diff <= 200 and pos_diff <= 200:  # close
             if time_diff <= 2.0 and pos_diff <= 0.1:  # close
+                # if time_diff <= 200 and pos_diff <= 200:  # very close, so same origin
                 if time_diff <= 0.1 and pos_diff <= 0.01:  # very close, so same origin
-                    print('same origin', id)
                     # don't change origin information
+                    logging.info('found same origin ' + str(closest_origin.orid) + ' in ' + filename)
+
+                    # store origin id of closest match for use in further .origerr, .netmag, etc. tables
+                    originid = closest_origin.orid
+
                 else:
                     # new origin entry, but same event
                     ori = origin30(lat=float(eqlocl_lat),
@@ -140,6 +199,7 @@ def main():
                                    orid=orid,  # next largest orid in origin table
                                    evid=closest_origin.evid,
                                    jdate=julday(eq_date),
+                                   commid=originid,
 
                                    # ndp=,
                                    # grn=,
@@ -148,10 +208,8 @@ def main():
                                    # depdp=,
                                    # algorithm=,
                                    # auth=,
-                                   # commid=,
                                    # lddate=
                                    )
-
 
                     # origin.auth
                     auth = list("              ")
@@ -178,6 +236,8 @@ def main():
                     day_of_year = datetime(year=int(year.strip()),
                                            month=int(month.strip()),
                                            day=int(day.strip())).timetuple().tm_yday
+
+                    # auth should now be 'SRC YYYDOY'
                     auth[7:10] = str(day_of_year)
 
                     if getval(eqlocl, 'username') is not None:
@@ -219,20 +279,78 @@ def main():
                             ori.msid = msid
                             msid += 1
 
-
+                    # origin.nass
                     if getval(eqlocl, 'NumTriggers') is not None:
                         ori.nass = int(getval(eqlocl, 'NumTriggers'))
 
+                    # origin.ndef
                     if getval(eqlocl, 'NumUndeferredTriggers') is not None:
                         ori.ndef = int(getval(eqlocl, 'NumUndeferredTriggers'))
 
-                    logging.info('adding new origin from arrival in ' + filename + '\n' +
+                    logging.info('Adding new origin from arrival in ' + filename + '\n' +
                                  ori.create_css_string())
 
+                    origins.append(ori)
+
+                    originid = orid  # store last origin id for use in .origerr, .netmag, etc. tables
                     orid += 1
 
                 # Insert new parameters for origerr, arrival, assoc, remark, netmag tables
-                # do a check to see if parameters empty in tables: fill in with new data (preserve old data)
+                oer = origerr30(orid=originid,  # either last orid, or closest 'same' origin id
+                                stime=float(getval(eqlocl['uncertainty'], 'time')),
+                                sminax=float(getval(eqlocl['uncertainty'], 'east')),
+                                smajax=float(getval(eqlocl['uncertainty'], 'north')),
+                                strike=float(getval(eqlocl['uncertainty'], 'depth')),
+                                )
+
+                # origerr.conf
+                if getval(eqlocl, 'accuracyCode') is not None:
+                    code = getval(eqlocl, 'accuracyCode').lower()
+                    if code in accuracy_codes:
+                        oer.conf = accuracy_codes[code]
+
+                # origerr.sdobs
+                if getval(eqlocl, 'standardDeviation') is not None:
+                    oer.sdobs = float(getval(eqlocl, 'standardDeviation'))
+
+                if originid > len(origerrs):  # new record
+                    origerrs.append(oer)
+                    logging.info('Adding new origerr ' + str(oer.orid) + oer.create_css_string())
+                else:
+                    # fill in old record with new data (preserve old non-empty data)
+                    origerrs[originid - 1], modified = fill_empty(old=origerrs[originid - 1],
+                                                                  new=oer,
+                                                                  empty_ref=origerr30(),
+                                                                  key='orid')
+                    if modified:
+                        logging.info('Modified origerr orid=' + str(originid) + ': ' + modified)
+
+                # remark.remark
+                rem = remark30(commid=originid)
+                remark = ''
+
+                if 'nearestPlace' in eqlocl:
+                    if getval(eqlocl['nearestPlace'], 'name') is not None:
+                        remark = getval(eqlocl['nearestPlace'], 'name')
+
+                    if getval(eqlocl['nearestPlace'], 'state') is not None:
+                        remark[:-1] = getval(eqlocl['nearestPlace'], 'state')
+
+                if originid > len(remarks):
+                    remarks.append(rem)
+                    logging.info('Adding new remark' + str(rem.commid) + rem.create_css_string())
+                else:
+                    remarks[originid - 1], modified = fill_empty(old=remarks[originid - 1],
+                                                                 new=rem,
+                                                                 empty_ref=remark30(),
+                                                                 key='commid')
+                    if modified:
+                        logging.info('Modified remark commid=' + str(originid) + ': ' + modified)
+
+    # write out all the newly associated files (with additions & modifications)
+    origin_out.write(''.join(map(lambda o: o.create_css_string(), origins)))
+    origerr_out.write(''.join(map(lambda o: o.create_css_string(), origerrs)))
+    remark_out.write(''.join(map(lambda o: o.create_css_string(), remarks)))
 
 if __name__ == '__main__':
     main()
