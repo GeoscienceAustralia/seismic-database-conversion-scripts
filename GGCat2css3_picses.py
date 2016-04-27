@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+"""
+Read in GGCat CSV file and convert each line into CSS3.0 entries
 
+Developed: March 2016 - Jonathan Mettes
+"""
 import csv
 import os
-from css_types2 import event30, remark30, origerr30, origin30
+from css_types2 import event30, remark30, origerr30, origin30, netmag30
 from datetime import datetime
 
 
@@ -22,10 +26,12 @@ def julday(dt):
 
 
 def etype_str(etype, depend):
-    # etype is formatted to have type of event type (e.g., coal blast, local earthquake) on the left
-    # and then have the association (e.g., mainshock, aftershock, foreshock) on the right
-    # it is padded with '_', with a maximum total length of 7
-    # for example: l____ms
+    """
+    etype is formatted to have type of event type (e.g., coal blast, local earthquake) on the left
+    and then have the association (e.g., mainshock, aftershock, foreshock) on the right
+    it is padded with '_', with a maximum total length of 7
+    for example: l____ms
+    """
     return '{etype}{s:_^{padding}}{depend}'.format(etype=etype,
                                                    depend=depend,
                                                    s='',
@@ -39,14 +45,18 @@ mags = ['ML', 'mb', 'MS', 'Mw']
 
 # TODO try,catch for files
 with open('GGcat_big_2000.csv', 'rb') as csvfile, \
-        open('out.event', 'w') as evi_out, open('out.remark', 'w') as rem_out, \
-        open('out.origerr', 'w') as oer_out, open('out.origin', 'w') as ori_out:
+        open('out.event', 'w') as evi_out,\
+        open('out.remark', 'w') as rem_out, \
+        open('out.origerr', 'w') as oer_out, \
+        open('out.origin', 'w') as ori_out, \
+        open('out.netmag', 'w') as nmg_out:
     reader = csv.DictReader(csvfile)
 
     id = 1
     mlid = 0
     mbid = 0
     msid = 0
+    magid = 0
     for row in reader:
         if row['Source'] == "Source":  # skip first line
             continue
@@ -59,7 +69,7 @@ with open('GGcat_big_2000.csv', 'rb') as csvfile, \
                       mk_int(row['Second']) or 0,
                       int(((mk_float(row['Second']) or 0) % 1) * 1000000))  # microsecond
 
-        # # Event
+        # Event
         evi = event30(evid=id,
                       evname=row['Place'][:15],
                       prefor=id,
@@ -91,18 +101,18 @@ with open('GGcat_big_2000.csv', 'rb') as csvfile, \
 
         oer_out.write(oer.create_css_string())
 
-        # # Origin
+        # Origin
         ori = origin30(orid=id,
-                     evid=id,
-                     time=(dt - datetime(1970, 1, 1)).total_seconds(),  # epoch
-                     jdate=julday(dt),
-                     etype=etype_str(event_types[row['Type'].strip()] if row['Type'].strip() in event_types
-                                      else '',
-                                      depends[row['Dependence'].strip()] if row['Dependence'].strip() in depends
-                                      else ''),
-                     algorithm='GGCat',
-                     auth=row['Source'],
-                     commid=id)
+                       evid=id,
+                       time=(dt - datetime(1970, 1, 1)).total_seconds(),  # epoch
+                       jdate=julday(dt),
+                       etype=etype_str(event_types[row['Type'].strip()] if row['Type'].strip() in event_types
+                                       else '',
+                                       depends[row['Dependence'].strip()] if row['Dependence'].strip() in depends
+                                       else ''),
+                       algorithm='GGCat',
+                       auth=row['Source'],
+                       commid=id)
 
         if mk_float(row['Latitude']) is not None:
             ori.lat = mk_float(row['Latitude']) * -1.0  # GGCat doesn't have -ve lat for south
@@ -119,21 +129,40 @@ with open('GGcat_big_2000.csv', 'rb') as csvfile, \
         if mag_type == 'ML':
             mlid += 1
             ori.mlid = mlid
+            magid = mlid
             ori.ml = mk_float(row['Mag Value'])
         elif mag_type == 'MB':
             mbid += 1
             ori.mbid = mbid
+            magid = mbid
             ori.mb = mk_float(row['Mag Value'])
         elif mag_type == 'MS' or mag_type == 'MW':
             msid += 1
             ori.msid = msid
+            magid = msid
             ori.ms = mk_float(row['Mag Value'])
 
         ori_out.write(ori.create_css_string())
 
+        # Netmag
+        nmg = netmag30(magid=magid,
+                       net=row['Source'],
+                       orid=id,
+                       # evid=,
+                       magtype=mag_type,
+                       # nsta=,
+                       magnitude=mk_float(row['Mag Value']),
+                       # uncertainty=,
+                       auth=row['Source'],
+                       # commid=,
+                       # lddate=,
+                       )
+
+        nmg_out.write(nmg.create_css_string())
 
         id += 1
 
+# print out all the converted CSS strings
 print("Event:")
 event = event30()
 with open('out.event', 'r') as evi_in:
@@ -161,6 +190,13 @@ with open('out.origin', 'r') as ori_in:
     for line in ori_in:
         origin.from_string(line)
         print origin.create_css_string(),
+
+print("Netmag:")
+netmag = netmag30()
+with open('out.netmag', 'r') as nmg_in:
+    for line in nmg_in:
+        netmag.from_string(line)
+        print netmag.create_css_string(),
 
 
 # Example event output:
