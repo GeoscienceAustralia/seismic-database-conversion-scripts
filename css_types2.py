@@ -272,6 +272,33 @@ class arrival30:
       self.commid=long(row[24])
       self.lddate=row[25]
 
+   def from_string(self, line):
+      self.sta = long(line[0:6])
+      self.time = float(line[7:24])
+      self.arid = long(line[25:33])
+      self.jdate = long(line[34:42])
+      self.stassid = long(line[43:51])
+      self.chanid = long(line[52:60])
+      self.chan = line[61:69]
+      self.iphase = line[70:78]
+      self.stype = line[79:80]                        # check types
+      self.deltim = float(line[81:87])
+      self.azimuth = float(line[88:95])
+      self.delaz = float(line[96:103])
+      self.slow = float(line[104:111])
+      self.delslo = float(line[112:119])
+      self.ema = float(line[120:127])
+      self.rect = float(line[128:135])
+      self.amp = float(line[136:146])
+      self.per = float(line[147:154])
+      self.logat = float(line[155:162])
+      self.clip = line[163:164]
+      self.fm = line[165:167]
+      self.snr = float(line[168:178])
+      self.qual = line[179:180]
+      self.auth = line[181:196]
+      self.commid = long(line[197:205])
+      self.lddate = line[206:223]
 
 
 #
