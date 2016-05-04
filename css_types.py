@@ -8,34 +8,34 @@ import sys,os,string,time
 # March 2016 Jonathan Mettes added a few some tables, constructors and from_string methods
 
 class origin30:
-   def __init__(self, lat=-999.0, lon=-999.0, depth=-999.0, time=-9999999999.999, orid=1, evid=1, jdate=-1, nass=-1,
-                ndef=-1, ndp=-1, grn=-1, srn=-1, etype="-", depdp=-999.0, dtype="-", mb=-999.0, mbid=-1, ms=-999.0,
-                msid=-1, ml=-999.0, mlid=-1, algorithm="-", auth="-", commid=-1, lddate="-"):
-      self.lat = lat
-      self.lon = lon
-      self.depth = depth
-      self.time = time
-      self.orid = orid
-      self.evid = evid
-      self.jdate = jdate
-      self.nass = nass
-      self.ndef = ndef
-      self.ndp = ndp
-      self.grn = grn
-      self.srn = srn
-      self.etype = etype
-      self.depdp = depdp
-      self.dtype = dtype
-      self.mb = mb
-      self.mbid = mbid
-      self.ms = ms
-      self.msid = msid
-      self.ml = ml
-      self.mlid = mlid
-      self.algorithm = algorithm
-      self.auth = auth
-      self.commid = commid
-      self.lddate = lddate
+   def __init__(self, lat=None, lon=None, depth=None, time=None, orid=None, evid=None, jdate=None, nass=None,
+                ndef=None, ndp=None, grn=None, srn=None, etype=None, depdp=None, dtype=None, mb=None, mbid=None,
+                ms=None, msid=None, ml=None, mlid=None, algorithm=None, auth=None, commid=None, lddate=None):
+      self.lat = lat if lat is not None else -999.0
+      self.lon = lon if lon is not None else -999.0
+      self.depth = depth if depth is not None else -999.0
+      self.time = time if time is not None else -9999999999.999
+      self.orid = orid if orid is not None else 1
+      self.evid = evid if evid is not None else 1
+      self.jdate = jdate if jdate is not None else -1
+      self.nass = nass if nass is not None else -1
+      self.ndef = ndef if ndef is not None else -1
+      self.ndp = ndp if ndp is not None else -1
+      self.grn = grn if grn is not None else -1
+      self.srn = srn if srn is not None else -1
+      self.etype = etype if etype is not None else "-"
+      self.depdp = depdp if depdp is not None else -999.0
+      self.dtype = dtype if dtype is not None else "-"
+      self.mb = mb if mb is not None else -999.0
+      self.mbid = mbid if mbid is not None else -1
+      self.ms = ms if ms is not None else -999.0
+      self.msid = msid if msid is not None else -1
+      self.ml = ml if ml is not None else -999.0
+      self.mlid = mlid if mlid is not None else -1
+      self.algorithm = algorithm if algorithm is not None else "-"
+      self.auth = auth if auth is not None else "-"
+      self.commid = commid if commid is not None else -1
+      self.lddate = lddate if lddate is not None else "-"
 #
 #  Write CSS3.0 origin structure to standard output.
    def write(self):
@@ -628,29 +628,29 @@ class wfdisc28:
 
 
 class origerr30:
-   def __init__(self, orid=-1, sxx=-1.0, syy=-1.0, szz=-1.0, stt=-1.0, sxy=-1.0, sxz=-1.0, syz=-1.0, stx=-1.0, sty=-1.0,
-                stz=-1.0, sdobs=-1.0, smajax=-1.0, sminax=-1.0, strike=-1.0, sdepth=-1.0, stime=-1.0, conf=0.0,
-                commid=-1, lddate="-"):
-      self.orid = orid
-      self.sxx = sxx
-      self.syy = syy
-      self.szz = szz
-      self.stt = stt
-      self.sxy = sxy
-      self.sxz = sxz
-      self.syz = syz
-      self.stx = stx
-      self.sty = sty
-      self.stz = stz
-      self.sdobs = sdobs
-      self.smajax = smajax
-      self.sminax = sminax
-      self.strike = strike
-      self.sdepth = sdepth
-      self.stime = stime
-      self.conf = conf
-      self.commid = commid
-      self.lddate = lddate
+   def __init__(self, orid=None, sxx=None, syy=None, szz=None, stt=None, sxy=None, sxz=None, syz=None, stx=None,
+                sty=None, stz=None, sdobs=None, smajax=None, sminax=None, strike=None, sdepth=None, stime=None,
+                conf=None, commid=None, lddate=None):
+      self.orid = orid if orid is not None else -1
+      self.sxx = sxx if sxx is not None else -1.0
+      self.syy = syy if syy is not None else -1.0
+      self.szz = szz if szz is not None else -1.0
+      self.stt = stt if stt is not None else -1.0
+      self.sxy = sxy if sxy is not None else -1.0
+      self.sxz = sxz if sxz is not None else -1.0
+      self.syz = syz if syz is not None else -1.0
+      self.stx = stx if stx is not None else -1.0
+      self.sty = sty if sty is not None else -1.0
+      self.stz = stz if stz is not None else -1.0
+      self.sdobs = sdobs if sdobs is not None else -1.0
+      self.smajax = smajax if smajax is not None else -1.0
+      self.sminax = sminax if sminax is not None else -1.0
+      self.strike = strike if strike is not None else -1.0
+      self.sdepth = sdepth if sdepth is not None else -1.0
+      self.stime = stime if stime is not None else -1.0
+      self.conf = conf if conf is not None else 0.0
+      self.commid = commid if commid is not None else -1
+      self.lddate = lddate if lddate is not None else "-"
 
 
    def wrtorigerr(self):
@@ -955,19 +955,19 @@ class instrument30:
 #
 # netmag30 structure
 class netmag30:
-    def __init__(self, magid=-1, net="-", orid=-1, evid=-1, magtype="-", nsta=-1, magnitude=-999.0, uncertainty=-990.0,
-                 auth="-", commid=-1, lddate="-"):
-        self.magid = magid
-        self.net = net
-        self.orid = orid
-        self.evid = evid
-        self.magtype = magtype
-        self.nsta = nsta
-        self.magnitude = magnitude
-        self.uncertainty = uncertainty
-        self.auth = auth
-        self.commid = commid
-        self.lddate = lddate
+    def __init__(self, magid=None, net=None, orid=None, evid=None, magtype=None, nsta=None, magnitude=None,
+                 uncertainty=None, auth=None, commid=None, lddate=None):
+        self.magid = magid if magid is not None else -1
+        self.net = net if net is not None else "-"
+        self.orid = orid if orid is not None else -1
+        self.evid = evid if evid is not None else -1
+        self.magtype = magtype if magtype is not None else "-"
+        self.nsta = nsta if nsta is not None else -1
+        self.magnitude = magnitude if magnitude is not None else -999.0
+        self.uncertainty = uncertainty if uncertainty is not None else -990.0
+        self.auth = auth if auth is not None else "-"
+        self.commid = commid if commid is not None else -1
+        self.lddate = lddate if lddate is not None else "-"
 
     #def create_css_string(self):
     #  ostring='%8d %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %9.4f %9.4f %9.4f %6.2f %9.4f %8.2f %5.3f %8d %-17s\n' % (self.orid, self.sxx, self.syy, self.szz, self.stt, self.sxy, self.sxz, self.syz, self.stx, self.sty, self.stz, self.sdobs, self.smajax, self.sminax, self.strike, self.sdepth, self.stime, self.conf, self.commid, self.lddate)
@@ -993,13 +993,13 @@ class netmag30:
         #
 # event30 structure
 class event30:
-    def __init__(self, evid=-1, evname="-", prefor=-1, auth="-", commid=-1, lddate="-"):
-        self.evid = evid
-        self.evname = evname
-        self.prefor = prefor
-        self.auth = auth
-        self.commid = commid
-        self.lddate = lddate
+    def __init__(self, evid=None, evname=None, prefor=None, auth=None, commid=None, lddate=None):
+        self.evid = evid if evid is not None else -1
+        self.evname = evname if evname is not None else "-"
+        self.prefor = prefor if prefor is not None else -1
+        self.auth = auth if auth is not None else "-"
+        self.commid = commid if commid is not None else -1
+        self.lddate = lddate if lddate is not None else "-"
 
     def create_css_string(self):
         # print(self.evid, self.evname, self.prefor, self.auth, self.commid, self.lddate)
@@ -1018,11 +1018,11 @@ class event30:
 #
 # remark30 structure
 class remark30:
-    def __init__(self, commid=-1, lineno=1, remark='-', lddate='-'):
-        self.commid = commid
-        self.lineno = lineno
-        self.remark = remark
-        self.lddate = lddate
+    def __init__(self, commid=None, lineno=None, remark=None, lddate=None):
+        self.commid = commid if commid is not None else -1
+        self.lineno = lineno if lineno is not None else 1
+        self.remark = remark if remark is not None else '-'
+        self.lddate = lddate if lddate is not None else '-'
 
     def create_css_string(self):
         astring='%8d %8d %-80s %-17s\n' % (self.commid, self.lineno, self.remark, self.lddate)

@@ -23,14 +23,6 @@ def mk_float(s):
     return float(s) if len(s) > 0 else None
 
 
-def ignore_empty(d):
-    n = {}
-    for k, v in d.iteritems():
-        if v:
-            n[k] = v
-    return n
-
-
 def julday(dt):
     tt = dt.timetuple()
     return tt.tm_year * 1000 + tt.tm_yday
@@ -95,40 +87,36 @@ with open(GGCAT_FILE, 'rb') as csvfile, \
         rem_out.write(rem.create_css_string())
 
         # Origerr
-        oer_dict = {'orid': id,
-                    'commid': id,
-                    'sdobs':  mk_float(row['RMS']),
-                    'smajax': mk_float(row['Semi Major']),
-                    'sminax': mk_float(row['Semi Minor']),
-                    'strike': mk_float(row['Smaj Azim']),
-                    'sdepth': mk_float(row['Depth Unc']),
-                    'stime':  mk_float(row['Time Unc'])}
-
-        oer = origerr30(**ignore_empty(oer_dict))
+        oer = origerr30(orid=id,
+                        commid=id,
+                        sdobs=mk_float(row['RMS']),
+                        smajax=mk_float(row['Semi Major']),
+                        sminax=mk_float(row['Semi Minor']),
+                        strike=mk_float(row['Smaj Azim']),
+                        sdepth=mk_float(row['Depth Unc']),
+                        stime=mk_float(row['Time Unc']))
 
         oer_out.write(oer.create_css_string())
 
         # Origin
-        ori_dict = {
-            'orid': id,
-            'evid': id,
-            'time': (dt - datetime(1970, 1, 1)).total_seconds(),  # epoch
-            'jdate': julday(dt),
-            'etype': etype_str(event_types[row['Type'].strip()] if row['Type'].strip() in event_types
-                               else '',
-                               depends[row['Dependence'].strip()] if row['Dependence'].strip() in depends
-                               else ''),
-            'algorithm': 'GGCat',
-            'auth': row['Source'],
-            'commid': id,
-            'lat': mk_float(row['Latitude']) * -1.0,  # GGCat doesn't have -ve lat for south
-            'lon': mk_float(row['Longitude']),
-            'depth': mk_float(row['Depth']),
-            'ndef': mk_int(row['Arrivals']),
-            'dtype': depth_types[row['Depth Code'].strip()] if row['Depth Code'].strip() and
-                                                               row['Depth Code'].strip() in depth_types else None
-        }
-        ori = origin30(**ignore_empty(ori_dict))
+        ori = origin30(orid=id,
+                       evid=id,
+                       time=(dt - datetime(1970, 1, 1)).total_seconds(),  # epoch
+                       jdate=julday(dt),
+                       etype=etype_str(event_types[row['Type'].strip()]
+                                       if row['Type'].strip() in event_types
+                                       else '',
+                                       depends[row['Dependence'].strip()] if row['Dependence'].strip() in depends
+                                       else ''),
+                       algorithm='GGCat',
+                       auth=row['Source'],
+                       commid=id,
+                       lat=mk_float(row['Latitude']) * -1.0,  # GGCat doesn't have -ve lat for south
+                       lon=mk_float(row['Longitude']),
+                       depth=mk_float(row['Depth']),
+                       ndef=mk_int(row['Arrivals']),
+                       dtype=depth_types[row['Depth Code'].strip()] if row['Depth Code'].strip() and
+                                                                       row['Depth Code'].strip() in depth_types else None)
 
         mag_type = row['Mag Type'].upper()
         if mag_type == 'ML':
