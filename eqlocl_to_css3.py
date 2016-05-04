@@ -13,7 +13,7 @@ Developed by: Jonathan Mettes - March 2016
 import json
 import glob
 from datetime import datetime, timedelta
-from css_types2 import origin30, origerr30, netmag30, remark30
+from css_types import origin30, origerr30, netmag30, remark30
 from geopy.distance import vincenty
 import logging
 import sys
@@ -26,13 +26,13 @@ GAED_NETMAG_FILE = 'out.netmag'
 GAED_ORIGERR_FILE = 'out.origerr'
 GAED_REMARK_FILE = 'out.remark'
 
-ORIGIN_OUT = 'jo.origin'
-NETMAG_OUT = 'jo.netmag'
-ORIGERR_OUT = 'jo.origerr'
-REMARK_OUT = 'jo.remark'
+ORIGIN_OUT = 'eqlocl.origin'
+NETMAG_OUT = 'eqlocl.netmag'
+ORIGERR_OUT = 'eqlocl.origerr'
+REMARK_OUT = 'eqlocl.remark'
 
 # the root directory to start searching for eqlocl files
-EQLOCL_ROOT = 'eqlocl/'
+EQLOCL_ROOT = 'sample_data/'
 
 # will traverse directories and parse only text files starting with GA, agso, ASC or MUN
 # (to avoid parsing random files)

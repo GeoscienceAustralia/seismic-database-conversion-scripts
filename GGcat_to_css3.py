@@ -6,8 +6,11 @@ Developed: March 2016 - Jonathan Mettes
 """
 import csv
 import os
-from css_types2 import event30, remark30, origerr30, origin30, netmag30
+from css_types import event30, remark30, origerr30, origin30, netmag30
 from datetime import datetime
+
+
+GGCAT_FILE = "sample_data/GGcat_big_2000.csv"
 
 
 def mk_int(s):
@@ -44,7 +47,7 @@ depth_types = {'D': 'f', 'C': 'r', 'G': 'g', 'N': 'n', 'pP': 'd', 'B': 'd'}
 mags = ['ML', 'mb', 'MS', 'Mw']
 
 # TODO try,catch for files
-with open('GGcat_big_2000.csv', 'rb') as csvfile, \
+with open(GGCAT_FILE, 'rb') as csvfile, \
         open('out.event', 'w') as evi_out,\
         open('out.remark', 'w') as rem_out, \
         open('out.origerr', 'w') as oer_out, \

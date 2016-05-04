@@ -5,42 +5,44 @@ import sys,os,string,time
 #
 # From Spiro Spiliopoulos to Mark Leonard November 2015
 # December 2015 & January 2016 Mark Leonard added a few new table types
-#
+# March 2016 Jonathan Mettes added a few some tables, constructors and from_string methods
 
 class origin30:
-   def __init__(self):
-      self.lat=-999.0
-      self.lon=-999.0
-      self.depth=-999.0
-      self.time=-9999999999.999 
-      self.orid=1
-      self.evid=1
-      self.jdate=-1
-      self.nass=-1
-      self.ndef=-1
-      self.ndp=-1
-      self.grn=-1
-      self.srn=-1
-      self.etype="-"
-      self.depdp=-999.0
-      self.dtype="-"
-      self.mb=-999.0
-      self.mbid=-1
-      self.ms=-999.0
-      self.msid=-1
-      self.ml=-999.0
-      self.mlid=-1
-      self.algorithm="-"
-      self.auth="-"
-      self.commid=-1
-      self.lddate=0
-# 
+   def __init__(self, lat=-999.0, lon=-999.0, depth=-999.0, time=-9999999999.999, orid=1, evid=1, jdate=-1, nass=-1,
+                ndef=-1, ndp=-1, grn=-1, srn=-1, etype="-", depdp=-999.0, dtype="-", mb=-999.0, mbid=-1, ms=-999.0,
+                msid=-1, ml=-999.0, mlid=-1, algorithm="-", auth="-", commid=-1, lddate="-"):
+      self.lat = lat
+      self.lon = lon
+      self.depth = depth
+      self.time = time
+      self.orid = orid
+      self.evid = evid
+      self.jdate = jdate
+      self.nass = nass
+      self.ndef = ndef
+      self.ndp = ndp
+      self.grn = grn
+      self.srn = srn
+      self.etype = etype
+      self.depdp = depdp
+      self.dtype = dtype
+      self.mb = mb
+      self.mbid = mbid
+      self.ms = ms
+      self.msid = msid
+      self.ml = ml
+      self.mlid = mlid
+      self.algorithm = algorithm
+      self.auth = auth
+      self.commid = commid
+      self.lddate = lddate
+#
 #  Write CSS3.0 origin structure to standard output.
    def write(self):
-      print'%9.4f %9.4f %9.4f %17.5f %8d %8d %8d %4d %4d %4d %8d %8d %-7s %9.4f %-1s %7.2f %8d %7.2f %8d %7.2f %8d %-15s %-15s %8d %17.5f\n' %(self.lat, self.lon, self.depth, self.time, self.orid, self.evid, self.jdate, self.nass, self.ndef, self.ndp, self.grn, self.srn, self.etype, self.depdp, self.dtype, self.mb, self.mbid, self.ms, self.msid, self.ml, self.mlid, self.algorithm, self.auth, self.commid, self.lddate)
+      print'%9.4f %9.4f %9.4f %17.5f %8d %8d %8d %4d %4d %4d %8d %8d %-7s %9.4f %-1s %7.2f %8d %7.2f %8d %7.2f %8d %-15s %-15s %8d %-17s\n' %(self.lat, self.lon, self.depth, self.time, self.orid, self.evid, self.jdate, self.nass, self.ndef, self.ndp, self.grn, self.srn, self.etype, self.depdp, self.dtype, self.mb, self.mbid, self.ms, self.msid, self.ml, self.mlid, self.algorithm, self.auth, self.commid, self.lddate)
 
    def create_css_string(self):
-      ostring='%9.4f %9.4f %9.4f %17.5f %8d %8d %8d %4d %4d %4d %8d %8d %-7s %9.4f %-1s %7.2f %8d %7.2f %8d %7.2f %8d %-15s %-15s %8d %17.5f\n' %(self.lat, self.lon, self.depth, self.time, self.orid, self.evid, self.jdate, self.nass, self.ndef, self.ndp, self.grn, self.srn, self.etype, self.depdp, self.dtype, self.mb, self.mbid, self.ms, self.msid, self.ml, self.mlid, self.algorithm, self.auth, self.commid, self.lddate)
+      ostring='%9.4f %9.4f %9.4f %17.5f %8d %8d %8d %4d %4d %4d %8d %8d %-7s %9.4f %-1s %7.2f %8d %7.2f %8d %7.2f %8d %-15s %-15s %8d %-17s\n' %(self.lat, self.lon, self.depth, self.time, self.orid, self.evid, self.jdate, self.nass, self.ndef, self.ndp, self.grn, self.srn, self.etype, self.depdp, self.dtype, self.mb, self.mbid, self.ms, self.msid, self.ml, self.mlid, self.algorithm, self.auth, self.commid, self.lddate)
       return ostring
 #
 #  Write CSS3.0 origin structure to a file.
@@ -50,10 +52,9 @@ class origin30:
       else:
           filename=prefix+'.origin'
       fp=open(filename,'w')
-      string='%9.4f %9.4f %9.4f %17.5f %8d %8d %8d %4d %4d %4d %8d %8d %-7s %9.4f %-1s %7.2f %8d %7.2f %8d %7.2f %8d %-15s %-15s %8d %17.5f\n' % (self.lat,self.lon,self.depth,self.time,self.orid,self.evid,self.jdate,self.nass,self.ndef, self.ndp, self.grn, self.srn, self.etype, self.depdp, self.dtype, self.mb, self.mbid, self.ms, self.msid, self.ml, self.mlid, self.algorithm, self.auth, self.commid, self.lddate)
+      string='%9.4f %9.4f %9.4f %17.5f %8d %8d %8d %4d %4d %4d %8d %8d %-7s %9.4f %-1s %7.2f %8d %7.2f %8d %7.2f %8d %-15s %-15s %8d %-17s\n' % (self.lat,self.lon,self.depth,self.time,self.orid,self.evid,self.jdate,self.nass,self.ndef, self.ndp, self.grn, self.srn, self.etype, self.depdp, self.dtype, self.mb, self.mbid, self.ms, self.msid, self.ml, self.mlid, self.algorithm, self.auth, self.commid, self.lddate)
       fp.write(string)
       fp.close()
-
 
 #
 #  Parse an IMS origin line and fill the CSS3.0 structure.
@@ -86,7 +87,7 @@ class origin30:
       time_tuple=(year,month,day,hour,min,second,0,0,0)
       self.time=time.mktime(time_tuple)+10.0*3600.0+tsecond
 #     Orid
-      self.orid=long(line[115:122]) 
+      self.orid=long(line[115:122])
 
    def rd_origin_record(self,line):
       row=string.split(line)
@@ -124,7 +125,36 @@ class origin30:
           year=int(float(self.jdate)/100)
           day=self.jdate-100*year
           self.jdate=1000*year+day
-    
+
+   def from_string(self, line):
+      self.lat = float(line[0:9])
+      self.lon = float(line[10:19])
+      self.depth = float(line[20:29])
+      self.time = float(line[30:47])
+      self.orid = long(line[48:56])
+      self.evid = long(line[57:65])
+      self.jdate = long(line[66:74])
+      self.nass = long(line[75:79])
+      self.ndef = long(line[80:84])
+      self.ndp = long(line[85:89])
+      self.grn = long(line[90:98])
+      self.srn = long(line[99:107])
+      self.etype = line[108:115]
+      self.depdp = float(line[116:125])
+      self.dtype = line[126:127]
+      self.mb = float(line[128:135])
+      self.mbid = long(line[136:144])
+      self.ms = float(line[145:152])
+      self.msid = long(line[153:161])
+      self.ml = float(line[162:169])
+      self.mlid = long(line[170:178])
+      self.algorithm = line[179:194]
+      self.auth = line[195:210]
+      self.commid = long(line[211:219])
+      self.lddate = line[220:237]
+
+
+
 #
 # end of origin30 class
 
@@ -150,14 +180,14 @@ class origin28:
       self.evid=1
       self.grn=-1
       self.srn=-1
-      self.ltype="-" 
-      self.dtype="-" 
-      self.etype="-" 
+      self.ltype="-"
+      self.dtype="-"
+      self.etype="-"
       self.auth="-"
       self.moauth="-"
       self.intscl="-"
       self.remark="-"
-      
+
    def write(self):
       print'%8d %15.3f %9.4f %9.4f %9.4f %6.2f %6.2f %7.2f %2d %4d %4d %4d %4d %4d %9.4f %8d %8d %3d %3d %-4s %-1s %-7s %-15s %-15s %-1s %-30s' %(self.date, self.time, self.lat, self.lon, self.depth, self.mb, self.ms, self.mo, self.maxint, self.nass, self.ndef, self.ndp, self.nmb, self.nms, self.depdp, self.orid, self.evid, self.grn, self.srn, self.ltype, self.dtype, self.etype, self.auth, self.moauth, self.intscl, self.remark)
 #
@@ -242,6 +272,33 @@ class arrival30:
       self.commid=long(row[24])
       self.lddate=row[25]
 
+   def from_string(self, line):
+      self.sta = long(line[0:6])
+      self.time = float(line[7:24])
+      self.arid = long(line[25:33])
+      self.jdate = long(line[34:42])
+      self.stassid = long(line[43:51])
+      self.chanid = long(line[52:60])
+      self.chan = line[61:69]
+      self.iphase = line[70:78]
+      self.stype = line[79:80]                        # check types
+      self.deltim = float(line[81:87])
+      self.azimuth = float(line[88:95])
+      self.delaz = float(line[96:103])
+      self.slow = float(line[104:111])
+      self.delslo = float(line[112:119])
+      self.ema = float(line[120:127])
+      self.rect = float(line[128:135])
+      self.amp = float(line[136:146])
+      self.per = float(line[147:154])
+      self.logat = float(line[155:162])
+      self.clip = line[163:164]
+      self.fm = line[165:167]
+      self.snr = float(line[168:178])
+      self.qual = line[179:180]
+      self.auth = line[181:196]
+      self.commid = long(line[197:205])
+      self.lddate = line[206:223]
 
 
 #
@@ -571,27 +628,29 @@ class wfdisc28:
 
 
 class origerr30:
-   def __init__(self):
-      self.orid=-1
-      self.sxx=-1.0
-      self.syy=-1.0
-      self.szz=-1.0
-      self.stt=-1.0
-      self.sxy=-1.0
-      self.sxz=-1.0
-      self.syz=-1.0
-      self.stx=-1.0
-      self.sty=-1.0
-      self.stz=-1.0
-      self.sdobs=-1.0
-      self.smajax=-1.0
-      self.sminax=-1.0
-      self.strike=-1.0
-      self.sdepth=-1.0
-      self.stime=-1.0
-      self.conf=0.0
-      self.commid=-1
-      self.lddate="-"
+   def __init__(self, orid=-1, sxx=-1.0, syy=-1.0, szz=-1.0, stt=-1.0, sxy=-1.0, sxz=-1.0, syz=-1.0, stx=-1.0, sty=-1.0,
+                stz=-1.0, sdobs=-1.0, smajax=-1.0, sminax=-1.0, strike=-1.0, sdepth=-1.0, stime=-1.0, conf=0.0,
+                commid=-1, lddate="-"):
+      self.orid = orid
+      self.sxx = sxx
+      self.syy = syy
+      self.szz = szz
+      self.stt = stt
+      self.sxy = sxy
+      self.sxz = sxz
+      self.syz = syz
+      self.stx = stx
+      self.sty = sty
+      self.stz = stz
+      self.sdobs = sdobs
+      self.smajax = smajax
+      self.sminax = sminax
+      self.strike = strike
+      self.sdepth = sdepth
+      self.stime = stime
+      self.conf = conf
+      self.commid = commid
+      self.lddate = lddate
 
 
    def wrtorigerr(self):
@@ -600,7 +659,6 @@ class origerr30:
    def create_css_string(self):
       ostring='%8d %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %9.4f %9.4f %9.4f %6.2f %9.4f %8.2f %5.3f %8d %-17s\n' % (self.orid, self.sxx, self.syy, self.szz, self.stt, self.sxy, self.sxz, self.syz, self.stx, self.sty, self.stz, self.sdobs, self.smajax, self.sminax, self.strike, self.sdepth, self.stime, self.conf, self.commid, self.lddate)
       return ostring
-
 
    def rd_origerr_record(self,line):
       row=string.split(line)
@@ -625,6 +683,27 @@ class origerr30:
       self.commid=long(row[18])
       self.lddate=row[19]
 
+   def from_string(self, line):
+       self.orid = long(line[0:8].strip())
+       self.sxx = float(line[9:24].strip())
+       self.syy = float(line[25:40].strip())
+       self.szz = float(line[41:56].strip())
+       self.stt = float(line[57:72].strip())
+       self.sxy = float(line[73:88].strip())
+       self.sxz = float(line[89:104].strip())
+       self.syz = float(line[105:120].strip())
+       self.stx = float(line[121:136].strip())
+       self.sty = float(line[137:152].strip())
+       self.stz = float(line[153:168].strip())
+       self.sdobs = float(line[169:178].strip())
+       self.smajax = float(line[179:188].strip())
+       self.sminax = float(line[189:198].strip())
+       self.strike = float(line[199:205].strip())
+       self.sdepth = float(line[206:215].strip())
+       self.stime = float(line[216:224].strip())
+       self.conf = float(line[225:230].strip())
+       self.commid = long(line[231:239].strip())
+       self.lddate = line[240:257].strip()
 
 class origerr28:
    def __init__(self):
@@ -645,7 +724,7 @@ class origerr28:
       self.sddp=-1.0
       self.sdzdp=-1.0
       self.remark='-'
-      
+
    def wrtorigerr(self):
       print'%8d %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %-30s' % (self.orid, self.sdobs, self.sxx, self.syy, self.szz, self.stt, self.sxy, self.sxz, self.syz, self.stx, self.sty, self.stz, self.sdmb, self.sdms, self.sddp, self.sdzdp, self.remark)
 
@@ -876,52 +955,82 @@ class instrument30:
 #
 # netmag30 structure
 class netmag30:
-    def __init__(self):
-        self.magid = -1
-        self.net = "-"
-        self.orid = -1
-        self.evid = -1
-        self.magtype = "-"
-        self.nsta = -1
-        self.magnitude = -999.0
-        self.uncertainty = -990.0
-        self.auth = "-"
-        self.commid = -1
-        self.lddate = "-"
+    def __init__(self, magid=-1, net="-", orid=-1, evid=-1, magtype="-", nsta=-1, magnitude=-999.0, uncertainty=-990.0,
+                 auth="-", commid=-1, lddate="-"):
+        self.magid = magid
+        self.net = net
+        self.orid = orid
+        self.evid = evid
+        self.magtype = magtype
+        self.nsta = nsta
+        self.magnitude = magnitude
+        self.uncertainty = uncertainty
+        self.auth = auth
+        self.commid = commid
+        self.lddate = lddate
 
     #def create_css_string(self):
     #  ostring='%8d %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %15.4f %9.4f %9.4f %9.4f %6.2f %9.4f %8.2f %5.3f %8d %-17s\n' % (self.orid, self.sxx, self.syy, self.szz, self.stt, self.sxy, self.sxz, self.syz, self.stx, self.sty, self.stz, self.sdobs, self.smajax, self.sminax, self.strike, self.sdepth, self.stime, self.conf, self.commid, self.lddate)
      # return ostring
     def create_css_string(self):
         nstring='%8d %-8s %8d %8d %-6s %8d %7.2f %7.2f %-15s %8d %-17s\n' % (self.magid, self.net, self.orid, self.evid, self.magtype, self.nsta, self.magnitude, self.uncertainty, self.auth, self.commid, self.lddate)
-        return nstring      
+        return nstring
+
+    def from_string(self, line):
+        self.magid = long(line[0:8])
+        self.net = line[9:17]
+        self.orid = long(line[18:26])
+        self.evid = long(line[27:35])
+        self.magtype = line[36:42]
+        self.nsta = int(line[43:51])
+        self.magnitude = float(line[52:59])
+        self.uncertainty = float(line[60:67])
+        self.auth = line[68:83]
+        self.commid = long(line[84:92])
+        self.lddate = line[93:110]
+
 # end netmag30 class
         #
 # event30 structure
 class event30:
-    def __init__(self):
-        self.evid = -1
-        self.evname = "-"
-        self.prefor = -1
-        self.auth = "-"
-        self.commid = -1
-        self.lddate = "-"
+    def __init__(self, evid=-1, evname="-", prefor=-1, auth="-", commid=-1, lddate="-"):
+        self.evid = evid
+        self.evname = evname
+        self.prefor = prefor
+        self.auth = auth
+        self.commid = commid
+        self.lddate = lddate
 
     def create_css_string(self):
+        # print(self.evid, self.evname, self.prefor, self.auth, self.commid, self.lddate)
         astring='%8d %-15s %8d %-15s %8d %-17s\n' % (self.evid, self.evname, self.prefor, self.auth, self.commid, self.lddate)
-        return astring  
+        return astring
+
+    def from_string(self, line):
+        self.evid = long(line[0:8].strip())
+        self.evname = line[9:24].strip()
+        self.prefor = long(line[25:33].strip())
+        self.auth = line[34:49].strip()
+        self.commid = long(line[50:58].strip())
+        self.lddate = line[59:76].strip()
 
 # end event30 class
 #
-# remark30 structure 
+# remark30 structure
 class remark30:
-    def __init__(self):
-        self.commid = -1
-        self.lineno = 1
-        self.remark = "-"
-        self.lddate = "-"
+    def __init__(self, commid=-1, lineno=1, remark='-', lddate='-'):
+        self.commid = commid
+        self.lineno = lineno
+        self.remark = remark
+        self.lddate = lddate
 
     def create_css_string(self):
         astring='%8d %8d %-80s %-17s\n' % (self.commid, self.lineno, self.remark, self.lddate)
-        return astring  
-# end remark30 class                
+        return astring
+
+    def from_string(self, line):
+        self.commid = long(line[0:8].strip())
+        self.lineno = long(line[9:17].strip())
+        self.remark = line[18:98].strip()
+        self.lddate = line[99:116].strip()
+# end remark30 class

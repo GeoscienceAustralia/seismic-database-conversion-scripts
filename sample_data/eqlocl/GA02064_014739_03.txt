@@ -1,0 +1,660 @@
+version = 8
+source = GA
+revison = 3
+revision.year = 2003
+revison.month = 3
+revison.day = 14
+program = EQLOCL 4.05j
+weightingmode = S
+filename = 2002-03-
+username = ab
+class = 
+type = 
+currentModel = WA2
+
+year = 2002
+month = 3
+day = 5
+hour = 1
+minute = 47
+second = 38.905628
+
+longitude = 117.084267
+latitude = -30.479149
+easting = 508.087860
+northing = 6628.104492
+depth = 0.501228
+zone = 50
+grid = AM
+depthcode =  
+uncertainty.type = 2
+uncertainty.time = 0.546896
+uncertainty.east = 2.368973
+uncertainty.north = 2.184458
+uncertainty.depth = 5.464619
+
+regionnumber = 0
+nearestPlace.distance = -1.000000
+nearestPlace.azimuth = -1.000000
+nearestPlace.name = BURAKIN WA
+nearestPlace.state = 
+faultcode = 
+accuracyCode = B
+standardDeviation = 0.483858
+numSites = 14
+nearestSeismograph.distance = 4.720856
+gap = 79.421310
+preferredMagnitude.type = ML
+preferredMagnitude.value = 5.000000
+effectsCode = F
+maximumIntensity = 4
+mechanism = 0
+
+arrival.number = 39
+arrival.number.used = 25
+arrival.number.deferred = 14
+
+arrival.active.0 = 1
+arrival.sitename.0 = CA3
+arrival.time.0 = 39.820000
+arrival.onset.0 = i
+arrival.firstMotion.0 = -
+arrival.phase.0 = P
+arrival.uncertainty.0 = 0.100000
+arrival.weight.0 = 1.570048
+arrival.residual.0 = 0.000000
+arrival.amplitude.0 = -1.000000
+arrival.frequency.0 = -1.000000
+
+arrival.active.1 = 1
+arrival.sitename.1 = CA3
+arrival.time.1 = 40.130001
+arrival.onset.1 = i
+arrival.firstMotion.1 =  
+arrival.phase.1 = S
+arrival.uncertainty.1 = 0.100000
+arrival.weight.1 = 1.413043
+arrival.residual.1 = 0.000000
+arrival.amplitude.1 = -1.000000
+arrival.frequency.1 = -1.000000
+
+arrival.active.2 = 1
+arrival.sitename.2 = BK1
+arrival.time.2 = 40.160000
+arrival.onset.2 = i
+arrival.firstMotion.2 = -
+arrival.phase.2 = P
+arrival.uncertainty.2 = 0.100000
+arrival.weight.2 = 1.505216
+arrival.residual.2 = 0.000000
+arrival.amplitude.2 = -1.000000
+arrival.frequency.2 = -1.000000
+
+arrival.active.3 = 1
+arrival.sitename.3 = BK1
+arrival.time.3 = 41.090000
+arrival.onset.3 = i
+arrival.firstMotion.3 =  
+arrival.phase.3 = S
+arrival.uncertainty.3 = 0.100000
+arrival.weight.3 = 1.354695
+arrival.residual.3 = 0.000000
+arrival.amplitude.3 = -1.000000
+arrival.frequency.3 = -1.000000
+
+arrival.active.4 = 1
+arrival.sitename.4 = CMC
+arrival.time.4 = 44.889999
+arrival.onset.4 = i
+arrival.firstMotion.4 = +
+arrival.phase.4 = P
+arrival.uncertainty.4 = 0.100000
+arrival.weight.4 = 1.373373
+arrival.residual.4 = 0.000000
+arrival.amplitude.4 = -1.000000
+arrival.frequency.4 = -1.000000
+
+arrival.active.5 = 1
+arrival.sitename.5 = CMC
+arrival.time.5 = 48.820000
+arrival.onset.5 = i
+arrival.firstMotion.5 =  
+arrival.phase.5 = S
+arrival.uncertainty.5 = 0.100000
+arrival.weight.5 = 1.236036
+arrival.residual.5 = 0.000000
+arrival.amplitude.5 = -1.000000
+arrival.frequency.5 = -1.000000
+
+arrival.active.6 = 1
+arrival.sitename.6 = BLDU
+arrival.time.6 = 45.450001
+arrival.onset.6 = i
+arrival.firstMotion.6 = -
+arrival.phase.6 = P
+arrival.uncertainty.6 = 0.100000
+arrival.weight.6 = 1.361035
+arrival.residual.6 = 0.000000
+arrival.amplitude.6 = -1.000000
+arrival.frequency.6 = -1.000000
+
+arrival.active.7 = 1
+arrival.sitename.7 = KLBR
+arrival.time.7 = 61.900002
+arrival.onset.7 = i
+arrival.firstMotion.7 = +
+arrival.phase.7 = P
+arrival.uncertainty.7 = 0.100000
+arrival.weight.7 = 1.224983
+arrival.residual.7 = 0.000000
+arrival.amplitude.7 = -1.000000
+arrival.frequency.7 = -1.000000
+
+arrival.active.8 = 1
+arrival.sitename.8 = KLBR
+arrival.time.8 = 77.099998
+arrival.onset.8 = e
+arrival.firstMotion.8 =  
+arrival.phase.8 = S
+arrival.uncertainty.8 = 0.100000
+arrival.weight.8 = 0.771739
+arrival.residual.8 = 0.000000
+arrival.amplitude.8 = -1.000000
+arrival.frequency.8 = -1.000000
+
+arrival.active.9 = 1
+arrival.sitename.9 = PIG4
+arrival.time.9 = 65.129997
+arrival.onset.9 = i
+arrival.firstMotion.9 = -
+arrival.phase.9 = P
+arrival.uncertainty.9 = 0.100000
+arrival.weight.9 = 1.206025
+arrival.residual.9 = 0.000000
+arrival.amplitude.9 = -1.000000
+arrival.frequency.9 = -1.000000
+
+arrival.active.10 = 1
+arrival.sitename.10 = PIG4
+arrival.time.10 = 84.349998
+arrival.onset.10 = i
+arrival.firstMotion.10 =  
+arrival.phase.10 = S
+arrival.uncertainty.10 = 0.100000
+arrival.weight.10 = 1.085423
+arrival.residual.10 = 0.000000
+arrival.amplitude.10 = -1.000000
+arrival.frequency.10 = -1.000000
+
+arrival.active.11 = 1
+arrival.sitename.11 = MUN
+arrival.time.11 = 68.300003
+arrival.onset.11 = e
+arrival.firstMotion.11 =  
+arrival.phase.11 = P
+arrival.uncertainty.11 = 0.100000
+arrival.weight.11 = 0.835476
+arrival.residual.11 = 0.000000
+arrival.amplitude.11 = -1.000000
+arrival.frequency.11 = -1.000000
+
+arrival.active.12 = 1
+arrival.sitename.12 = MUN
+arrival.time.12 = 89.500000
+arrival.onset.12 = i
+arrival.firstMotion.12 =  
+arrival.phase.12 = S
+arrival.uncertainty.12 = 0.100000
+arrival.weight.12 = 1.074184
+arrival.residual.12 = 0.000000
+arrival.amplitude.12 = -1.000000
+arrival.frequency.12 = -1.000000
+
+arrival.active.13 = 1
+arrival.sitename.13 = MORW
+arrival.time.13 = 69.000000
+arrival.onset.13 = i
+arrival.firstMotion.13 = +
+arrival.phase.13 = P
+arrival.uncertainty.13 = 0.100000
+arrival.weight.13 = 1.193402
+arrival.residual.13 = 0.000000
+arrival.amplitude.13 = -1.000000
+arrival.frequency.13 = -1.000000
+
+arrival.active.14 = 1
+arrival.sitename.14 = MORW
+arrival.time.14 = 90.300003
+arrival.onset.14 = e
+arrival.firstMotion.14 =  
+arrival.phase.14 = S
+arrival.uncertainty.14 = 0.100000
+arrival.weight.14 = 0.751843
+arrival.residual.14 = 0.000000
+arrival.amplitude.14 = -1.000000
+arrival.frequency.14 = -1.000000
+
+arrival.active.15 = 1
+arrival.sitename.15 = NWAO
+arrival.time.15 = 78.059998
+arrival.onset.15 = e
+arrival.firstMotion.15 =  
+arrival.phase.15 = P
+arrival.uncertainty.15 = 0.100000
+arrival.weight.15 = 0.806803
+arrival.residual.15 = 0.000000
+arrival.amplitude.15 = -1.000000
+arrival.frequency.15 = -1.000000
+
+arrival.active.16 = 1
+arrival.sitename.16 = MEEK
+arrival.time.16 = 100.860001
+arrival.onset.16 = e
+arrival.firstMotion.16 =  
+arrival.phase.16 = P
+arrival.uncertainty.16 = 0.100000
+arrival.weight.16 = 0.768375
+arrival.residual.16 = 0.000000
+arrival.amplitude.16 = -1.000000
+arrival.frequency.16 = -1.000000
+
+arrival.active.17 = 1
+arrival.sitename.17 = MEEK
+arrival.time.17 = 144.729996
+arrival.onset.17 = e
+arrival.firstMotion.17 =  
+arrival.phase.17 = S
+arrival.uncertainty.17 = 0.100000
+arrival.weight.17 = 0.691537
+arrival.residual.17 = 0.000000
+arrival.amplitude.17 = -1.000000
+arrival.frequency.17 = -1.000000
+
+arrival.active.18 = 1
+arrival.sitename.18 = RKGY
+arrival.time.18 = 101.500000
+arrival.onset.18 = e
+arrival.firstMotion.18 =  
+arrival.phase.18 = P
+arrival.uncertainty.18 = 0.100000
+arrival.weight.18 = 0.767232
+arrival.residual.18 = 0.000000
+arrival.amplitude.18 = -1.000000
+arrival.frequency.18 = -1.000000
+
+arrival.active.19 = 1
+arrival.sitename.19 = KMBL
+arrival.time.19 = 102.000000
+arrival.onset.19 = e
+arrival.firstMotion.19 =  
+arrival.phase.19 = P
+arrival.uncertainty.19 = 0.100000
+arrival.weight.19 = 0.765258
+arrival.residual.19 = 0.000000
+arrival.amplitude.19 = -1.000000
+arrival.frequency.19 = -1.000000
+
+arrival.active.20 = 1
+arrival.sitename.20 = KMBL
+arrival.time.20 = 149.000000
+arrival.onset.20 = e
+arrival.firstMotion.20 =  
+arrival.phase.20 = S
+arrival.uncertainty.20 = 0.100000
+arrival.weight.20 = 0.688732
+arrival.residual.20 = 0.000000
+arrival.amplitude.20 = -1.000000
+arrival.frequency.20 = -1.000000
+
+arrival.active.21 = 1
+arrival.sitename.21 = FORT
+arrival.time.21 = 172.500000
+arrival.onset.21 = e
+arrival.firstMotion.21 =  
+arrival.phase.21 = P
+arrival.uncertainty.21 = 0.100000
+arrival.weight.21 = 0.703789
+arrival.residual.21 = 0.000000
+arrival.amplitude.21 = -1.000000
+arrival.frequency.21 = -1.000000
+
+arrival.active.22 = 1
+arrival.sitename.22 = FORT
+arrival.time.22 = 273.000000
+arrival.onset.22 = e
+arrival.firstMotion.22 =  
+arrival.phase.22 = S
+arrival.uncertainty.22 = 0.100000
+arrival.weight.22 = 0.633410
+arrival.residual.22 = 0.000000
+arrival.amplitude.22 = -1.000000
+arrival.frequency.22 = -1.000000
+
+arrival.active.23 = 1
+arrival.sitename.23 = FITZ
+arrival.time.23 = 241.050003
+arrival.onset.23 = i
+arrival.firstMotion.23 = -
+arrival.phase.23 = P
+arrival.uncertainty.23 = 0.100000
+arrival.weight.23 = 1.000000
+arrival.residual.23 = 0.000000
+arrival.amplitude.23 = -1.000000
+arrival.frequency.23 = -1.000000
+
+arrival.active.24 = 1
+arrival.sitename.24 = FITZ
+arrival.time.24 = 392.630005
+arrival.onset.24 = e
+arrival.firstMotion.24 =  
+arrival.phase.24 = S
+arrival.uncertainty.24 = 0.100000
+arrival.weight.24 = 0.630000
+arrival.residual.24 = 0.000000
+arrival.amplitude.24 = -1.000000
+arrival.frequency.24 = -1.000000
+
+arrival.active.25 = 0
+arrival.sitename.25 = NWAO
+arrival.time.25 = 112.309998
+arrival.onset.25 = i
+arrival.firstMotion.25 =  
+arrival.phase.25 = S
+arrival.uncertainty.25 = 0.100000
+arrival.weight.25 = 1.037318
+arrival.residual.25 = 0.000000
+arrival.amplitude.25 = -1.000000
+arrival.frequency.25 = -1.000000
+
+arrival.active.26 = 0
+arrival.sitename.26 = RKGY
+arrival.time.26 = 161.100006
+arrival.onset.26 = e
+arrival.firstMotion.26 =  
+arrival.phase.26 = S
+arrival.uncertainty.26 = 0.100000
+arrival.weight.26 = 0.690509
+arrival.residual.26 = 0.000000
+arrival.amplitude.26 = -1.000000
+arrival.frequency.26 = -1.000000
+
+arrival.active.27 = 0
+arrival.sitename.27 = GIRL
+arrival.time.27 = 158.300003
+arrival.onset.27 = e
+arrival.firstMotion.27 =  
+arrival.phase.27 = P
+arrival.uncertainty.27 = 0.100000
+arrival.weight.27 = 0.714861
+arrival.residual.27 = 0.000000
+arrival.amplitude.27 = -1.000000
+arrival.frequency.27 = -1.000000
+
+arrival.active.28 = 0
+arrival.sitename.28 = GIRL
+arrival.time.28 = 241.300003
+arrival.onset.28 = e
+arrival.firstMotion.28 =  
+arrival.phase.28 = S
+arrival.uncertainty.28 = 0.100000
+arrival.weight.28 = 0.643375
+arrival.residual.28 = 0.000000
+arrival.amplitude.28 = -1.000000
+arrival.frequency.28 = -1.000000
+
+arrival.active.29 = 0
+arrival.sitename.29 = BBOO
+arrival.time.29 = 263.450012
+arrival.onset.29 = i
+arrival.firstMotion.29 = -
+arrival.phase.29 = P
+arrival.uncertainty.29 = 0.100000
+arrival.weight.29 = 1.000000
+arrival.residual.29 = 0.000000
+arrival.amplitude.29 = -1.000000
+arrival.frequency.29 = -1.000000
+
+arrival.active.30 = 0
+arrival.sitename.30 = BBOO
+arrival.time.30 = 434.700012
+arrival.onset.30 = e
+arrival.firstMotion.30 =  
+arrival.phase.30 = S
+arrival.uncertainty.30 = 0.100000
+arrival.weight.30 = 0.630000
+arrival.residual.30 = 0.000000
+arrival.amplitude.30 = -1.000000
+arrival.frequency.30 = -1.000000
+
+arrival.active.31 = 0
+arrival.sitename.31 = STKA
+arrival.time.31 = 321.760010
+arrival.onset.31 = i
+arrival.firstMotion.31 = -
+arrival.phase.31 = P
+arrival.uncertainty.31 = 0.100000
+arrival.weight.31 = 1.000000
+arrival.residual.31 = 0.000000
+arrival.amplitude.31 = -1.000000
+arrival.frequency.31 = -1.000000
+
+arrival.active.32 = 0
+arrival.sitename.32 = STKA
+arrival.time.32 = 545.260010
+arrival.onset.32 = e
+arrival.firstMotion.32 =  
+arrival.phase.32 = S
+arrival.uncertainty.32 = 0.100000
+arrival.weight.32 = 0.630000
+arrival.residual.32 = 0.000000
+arrival.amplitude.32 = -1.000000
+arrival.frequency.32 = -1.000000
+
+arrival.active.33 = 0
+arrival.sitename.33 = ARPS
+arrival.time.33 = 327.660004
+arrival.onset.33 = e
+arrival.firstMotion.33 =  
+arrival.phase.33 = P
+arrival.uncertainty.33 = 0.100000
+arrival.weight.33 = 0.700000
+arrival.residual.33 = 0.000000
+arrival.amplitude.33 = -1.000000
+arrival.frequency.33 = -1.000000
+
+arrival.active.34 = 0
+arrival.sitename.34 = ARPS
+arrival.time.34 = 588.130005
+arrival.onset.34 = e
+arrival.firstMotion.34 =  
+arrival.phase.34 = S
+arrival.uncertainty.34 = 0.100000
+arrival.weight.34 = 0.630000
+arrival.residual.34 = 0.000000
+arrival.amplitude.34 = -1.000000
+arrival.frequency.34 = -1.000000
+
+arrival.active.35 = 0
+arrival.sitename.35 = KAKA
+arrival.time.35 = 339.880005
+arrival.onset.35 = i
+arrival.firstMotion.35 = -
+arrival.phase.35 = P
+arrival.uncertainty.35 = 0.100000
+arrival.weight.35 = 1.000000
+arrival.residual.35 = 0.000000
+arrival.amplitude.35 = -1.000000
+arrival.frequency.35 = -1.000000
+
+arrival.active.36 = 0
+arrival.sitename.36 = KAKA
+arrival.time.36 = 584.260010
+arrival.onset.36 = e
+arrival.firstMotion.36 =  
+arrival.phase.36 = S
+arrival.uncertainty.36 = 0.100000
+arrival.weight.36 = 0.630000
+arrival.residual.36 = 0.000000
+arrival.amplitude.36 = -1.000000
+arrival.frequency.36 = -1.000000
+
+arrival.active.37 = 0
+arrival.sitename.37 = CMSA
+arrival.time.37 = 358.670013
+arrival.onset.37 = i
+arrival.firstMotion.37 = -
+arrival.phase.37 = P
+arrival.uncertainty.37 = 0.100000
+arrival.weight.37 = 1.000000
+arrival.residual.37 = 0.000000
+arrival.amplitude.37 = -1.000000
+arrival.frequency.37 = -1.000000
+
+arrival.active.38 = 0
+arrival.sitename.38 = CMSA
+arrival.time.38 = 629.599976
+arrival.onset.38 = e
+arrival.firstMotion.38 =  
+arrival.phase.38 = S
+arrival.uncertainty.38 = 0.100000
+arrival.weight.38 = 0.630000
+arrival.residual.38 = 0.000000
+arrival.amplitude.38 = -1.000000
+arrival.frequency.38 = -1.000000
+
+
+siteExtras.number = 13
+
+siteExtras.sitename.0 = ARPS
+siteExtras.recordNum.0 = 
+siteExtras.duration.0 = 0.000000
+siteExtras.error.0 = -0.000000
+siteExtras.errorUncertainty.0 = 0.000000
+
+siteExtras.sitename.1 = BBOO
+siteExtras.recordNum.1 = 
+siteExtras.duration.1 = 0.000000
+siteExtras.error.1 = -0.000000
+siteExtras.errorUncertainty.1 = 0.000000
+
+siteExtras.sitename.2 = BLDU
+siteExtras.recordNum.2 = 
+siteExtras.duration.2 = 0.000000
+siteExtras.error.2 = -0.000000
+siteExtras.errorUncertainty.2 = 0.000000
+
+siteExtras.sitename.3 = CMSA
+siteExtras.recordNum.3 = 
+siteExtras.duration.3 = 0.000000
+siteExtras.error.3 = -0.000000
+siteExtras.errorUncertainty.3 = 0.000000
+
+siteExtras.sitename.4 = FITZ
+siteExtras.recordNum.4 = 
+siteExtras.duration.4 = 0.000000
+siteExtras.error.4 = -0.000000
+siteExtras.errorUncertainty.4 = 0.000000
+
+siteExtras.sitename.5 = FORT
+siteExtras.recordNum.5 = 
+siteExtras.duration.5 = 0.000000
+siteExtras.error.5 = -0.000000
+siteExtras.errorUncertainty.5 = 0.000000
+
+siteExtras.sitename.6 = GIRL
+siteExtras.recordNum.6 = 
+siteExtras.duration.6 = 0.000000
+siteExtras.error.6 = -0.000000
+siteExtras.errorUncertainty.6 = 0.000000
+
+siteExtras.sitename.7 = KAKA
+siteExtras.recordNum.7 = 
+siteExtras.duration.7 = 0.000000
+siteExtras.error.7 = -0.000000
+siteExtras.errorUncertainty.7 = 0.000000
+
+siteExtras.sitename.8 = KLBR
+siteExtras.recordNum.8 = 
+siteExtras.duration.8 = 0.000000
+siteExtras.error.8 = -0.000000
+siteExtras.errorUncertainty.8 = 0.000000
+
+siteExtras.sitename.9 = KMBL
+siteExtras.recordNum.9 = 
+siteExtras.duration.9 = 0.000000
+siteExtras.error.9 = -0.000000
+siteExtras.errorUncertainty.9 = 0.000000
+
+siteExtras.sitename.10 = MEEK
+siteExtras.recordNum.10 = 
+siteExtras.duration.10 = 0.000000
+siteExtras.error.10 = -0.000000
+siteExtras.errorUncertainty.10 = 0.000000
+
+siteExtras.sitename.11 = MORW
+siteExtras.recordNum.11 = 
+siteExtras.duration.11 = 0.000000
+siteExtras.error.11 = -0.000000
+siteExtras.errorUncertainty.11 = 0.000000
+
+siteExtras.sitename.12 = MUN
+siteExtras.recordNum.12 = 
+siteExtras.duration.12 = 0.000000
+siteExtras.error.12 = -0.000000
+siteExtras.errorUncertainty.12 = 0.000000
+
+
+magnitude.number = 4
+
+magnitude.sitename.0 = MEEK
+magnitude.source.0 = AUST
+magnitude.year.0 = 2002
+magnitude.month.0 = 3
+magnitude.day.0 = 5
+magnitude.type.0 = ML
+magnitude.value.0 = 4.700000
+magnitude.valueUncert.0 = -1.000000
+magnitude.peakAmp.0 = -1.000000
+magnitude.peakAmpUncert.0 = -1.000000
+magnitude.frequency.0 = -1.000000
+magnitude.frequencyUncert.0 = -1.000000
+
+magnitude.sitename.1 = FORT
+magnitude.source.1 = AUST
+magnitude.year.1 = 2002
+magnitude.month.1 = 3
+magnitude.day.1 = 5
+magnitude.type.1 = ML
+magnitude.value.1 = 5.400000
+magnitude.valueUncert.1 = -1.000000
+magnitude.peakAmp.1 = -1.000000
+magnitude.peakAmpUncert.1 = -1.000000
+magnitude.frequency.1 = -1.000000
+magnitude.frequencyUncert.1 = -1.000000
+
+magnitude.sitename.2 = FITZ
+magnitude.source.2 = AUST
+magnitude.year.2 = 2002
+magnitude.month.2 = 3
+magnitude.day.2 = 5
+magnitude.type.2 = ML
+magnitude.value.2 = 4.900000
+magnitude.valueUncert.2 = -1.000000
+magnitude.peakAmp.2 = -1.000000
+magnitude.peakAmpUncert.2 = -1.000000
+magnitude.frequency.2 = -1.000000
+magnitude.frequencyUncert.2 = -1.000000
+
+magnitude.sitename.3 = RKGY
+magnitude.source.3 = AUST
+magnitude.year.3 = 2002
+magnitude.month.3 = 3
+magnitude.day.3 = 5
+magnitude.type.3 = ML
+magnitude.value.3 = 4.900000
+magnitude.valueUncert.3 = -1.000000
+magnitude.peakAmp.3 = -1.000000
+magnitude.peakAmpUncert.3 = -1.000000
+magnitude.frequency.3 = -1.000000
+magnitude.frequencyUncert.3 = -1.000000
+
