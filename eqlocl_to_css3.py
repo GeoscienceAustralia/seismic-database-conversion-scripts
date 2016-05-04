@@ -141,186 +141,239 @@ class EqLocl(object):
 
                     self.add(path=key.strip(), value=value.strip())
 
-
     def debug(self):
         print(json.dumps(self.db, indent=4))
 
+
+class Converter(object):
+    def __init__(self, origin_file, origerr_file, netmag_file, remark_file):
+        # load GAED
+        self.origins = load_db(origin_file, origin30, 'from_string')
+        self.origerrs = load_db(origerr_file, origerr30, 'from_string')
+        self.netmags = load_db(netmag_file, netmag30, 'from_string')
+        self.remarks = load_db(remark_file, remark30, 'from_string')
+
+        # set ids to ones after the last largest, will increment when inserting new entries
+        self.originid = self.orid = max(self.origins, key=lambda origin: origin.orid).orid + 1
+        self.mlid = max(self.origins, key=lambda origin: origin.mlid).mlid + 1
+        self.mbid = max(self.origins, key=lambda origin: origin.mbid).mbid + 1
+        self.msid = max(self.origins, key=lambda origin: origin.msid).msid + 1
+
+    def process_eqlocls(self, eqlocl_root, file_name_pattern):
+        """go through each file in EQLOCL path that matches the file name pattern
+           (e.g., contains 'MUN' and ends in '.txt')
+        """
+        for filename in glob.glob(EQLOCL_ROOT + FILE_NAME_PATTERN):
+            eq = EqLocl()
+            eq.parse(filename)
+
+            # check if this eqlocl file has arrivals, otherwise skip
+            if len(eq.get('arrival') or 0) < 1:
+                logging.info('no arrivals in ' + filename + ', skipping')
+                continue
+
+            try:
+                # try to get eqlocl date
+                # some eqlocl files have empty year/month/day fields. skip these files
+                eq_date = datetime(year=int(eq.get('year')),
+                                   month=int(eq.get('month')),
+                                   day=int(eq.get('day')),
+                                   hour=int(eq.get('hour')),
+                                   minute=int(eq.get('minute')))
+                # 'second' is purposely omitted for datetime, because we want to use the arrival's seconds,
+                # not the eqlocl file's second
+            except:
+                logging.info('cannot parse  invalid date in ' + filename + ', skipping')
+                continue
+
+            for id in eq.db['arrival']:
+                arrival = arrival = eq.db['arrival'][id]
+                self.handle_arrival(eq, eq_date, filename, arrival)
+
+    def handle_arrival(self, eq, eq_date, filename, arrival):
+        # arrival time is: eqlocl time (excluding its seconds) + arrival second (and fractional second)
+
+        arrival_seconds, arrival_frac_secs = arrival['time'].split('.')
+        arrival_offset = timedelta(seconds=int(arrival_seconds),
+                                   microseconds=int(arrival_frac_secs))
+        arrival_epoch = get_epoch(eq_date + arrival_offset)
+
+        # find the origin with the closest time to this arrival
+        # that is, find the origin with the smallest difference in time from the arrival time
+        closest_origin = min(self.origins, key=lambda origin: abs(origin.time - arrival_epoch))
+
+        # how close in time is the arrival to the origin time
+        time_diff = abs(closest_origin.time - arrival_epoch)
+
+        # make Eqlocl lat & lon same precision as CSS3.0
+        eqlocl_lat = "%9.4f" % float(eq.db['latitude'].strip())
+        eqlocl_lon = "%9.4f" % float(eq.db['longitude'].strip())
+
+        # how close together is the lat/long between the origin and arrival
+        pos_diff = abs(vincenty((float(closest_origin.lat), float(closest_origin.lon)), (eqlocl_lat, eqlocl_lon)))
+
+        if time_diff <= 2.0 and pos_diff <= 0.1:  # close
+
+            # very close, so same origin
+            if time_diff <= 0.1 and pos_diff <= 0.01:
+                # don't change origin information
+                logging.info('found same origin ' + str(closest_origin.orid) + ' in ' + filename)
+
+                # store origin id of closest match for use in further .origerr, .netmag, etc. tables
+                self.originid = closest_origin.orid
+
+            else:  # new origin entry, but same event
+                self.parse_origin(eq, eqlocl_lat, eqlocl_lon, arrival_epoch, closest_origin, eq_date, filename)
+
+
+            # Insert new parameters for origerr, arrival, assoc, remark, netmag tables
+
+            self.parse_origerr(eq)
+
+            self.parse_remark(eq)
+
+
+    def parse_origin(self, eq, eqlocl_lat, eqlocl_lon, arrival_epoch, closest_origin, eq_date, filename):
+        year = eq.get('revision.year') or eq.get('revison.year')
+        month = eq.get('revision.month') or eq.get('revison.month')
+        day = eq.get('revision.day') or eq.get('revison.day')
+        day_of_year = datetime(year=int(year.strip()),
+                               month=int(month.strip()),
+                               day=int(day.strip())).timetuple().tm_yday
+
+        ori = origin30(lat=float(eqlocl_lat),
+                       lon=float(eqlocl_lon),
+                       time=arrival_epoch,  # shouldn't use arrival seconds? then use seconds of eqlocl
+                       orid=self.orid,  # next largest orid in origin table
+                       evid=closest_origin.evid,
+                       jdate=julday(eq_date),
+                       commid=self.originid,
+                       depth=mk_float(eq.get('depth')),
+                       dtype=eq.get('depthcode'),
+                       nass=mk_int(eq.get('NumTriggers')),
+                       ndef=mk_int(eq.get('NumUndeferredTriggers')),
+                       auth='{0}  {1}{2}   {3}'.format((eq.get('source') or '   '), year[1:4],
+                                                       str(day_of_year)[0:4],
+                                                       eq.get('username')[0:4]),
+                       algorithm="EQLOCL " + eq.get('currentModel') or ''
+                       )
+
+        mag_type = eq.get('preferredMagnitude.type')
+        mag_value = float(eq.get('preferredMagnitude.value'))
+
+        if mag_type and mag_value:
+            if mag_type == 'ML':
+                ori.ml = mag_value
+                ori.mlid = self.mlid
+                self.mlid += 1
+            elif mag_type == 'MB':
+                ori.mb = mag_value
+                ori.mbid = self.mbid
+                self.mbid += 1
+            elif mag_type == 'MS' or mag_type == 'MW':
+                ori.ms = mag_value
+                ori.msid = self.msid
+                self.msid += 1
+
+        logging.info('Adding new origin from arrival in ' + filename + '\n' +
+                     ori.create_css_string())
+
+        self.origins.append(ori)
+
+        self.originid = self.orid  # store last origin id for use in .origerr, .netmag, etc. tables
+        self.orid += 1
+
+    def parse_origerr(self, eq):
+        code = eq.get('accuracyCode')
+        oer = origerr30(orid=self.originid,  # either last orid, or closest 'same' origin id
+                        stime=float(eq.get('uncertainty.time')),
+                        sminax=float(eq.get('uncertainty.east')),
+                        smajax=float(eq.get('uncertainty.north')),
+                        strike=float(eq.get('uncertainty.depth')),
+                        conf=accuracy_codes[code.lower()] if code and code.lower() in accuracy_codes else None,
+                        sdobs=mk_float(eq.get('standardDeviation'))
+                        )
+        if self.originid > len(self.origerrs):  # new record
+            self.origerrs.append(oer)
+            logging.info('Adding new origerr ' + str(oer.orid) + oer.create_css_string())
+        else:
+            # fill in old record with new data (preserve old non-empty data)
+            self.origerrs[self.originid - 1], modified = fill_empty(old=self.origerrs[self.originid - 1],
+                                                                    new=oer,
+                                                                    empty_ref=origerr30(),
+                                                                    key='orid')
+            if modified:
+                logging.info('Modified origerr orid=' + str(self.originid) + ': ' + modified)
+
+    def parse_remark(self, eq):
+        rem = remark30(commid=self.originid,
+                       remark=(eq.get('nearestPlace.name') or '') +
+                              (eq.get('nearestPlace.state') or '') or None)
+
+        if self.originid > len(self.remarks):
+            self.remarks.append(rem)
+            logging.info('Adding new remark' + str(rem.commid) + rem.create_css_string())
+        else:
+            self.remarks[self.originid - 1], modified = fill_empty(old=self.remarks[self.originid - 1],
+                                                                   new=rem,
+                                                                   empty_ref=remark30(),
+                                                                   key='commid')
+            if modified:
+                logging.info('Modified remark commid=' + str(self.originid) + ': ' + modified)
+
+    def output_origin(self):
+        return ''.join(map(lambda o: o.create_css_string(), self.origins))
+
+    def output_origerr(self):
+        return ''.join(map(lambda o: o.create_css_string(), self.origerrs))
+
+    def output_remark(self):
+        return ''.join(map(lambda o: o.create_css_string(), self.remarks))
+
+
+def read_command():
+    from argparse import ArgumentParser
+    usage_str = """
+    USAGE:    python eqlocl_to_css3.py <options>
+    Example:  python eqlocl_to_css3.py -d sample_data/ -p /**/[GA|agso|ASC|MUN]*.txt -o out.origin -e out.origerr -n out.netmag -r out.remark
+    """
+    parser = ArgumentParser(usage_str)
+
+    parser.add_argument('-d', '--directory', dest='directory', type=str,
+                        help='the directory containing EqLocl files', default=EQLOCL_ROOT)
+    parser.add_argument('-p', '--pattern', dest='pattern', type=str, default=FILE_NAME_PATTERN,
+                        help='pattern used to match against EqLocl file names (e.g., /**/[GA|agso|ASC|MUN]*.txt)')
+    parser.add_argument('-o', '--origin', dest='origin', type=str,
+                        help='CSS3.0 GAED .origin data file', default=GAED_ORIGIN_FILE)
+    parser.add_argument('-e', '--origerr', dest='origerr', type=str,
+                        help='CSS3.0 GAED .origerr data file', default=GAED_ORIGERR_FILE)
+    parser.add_argument('-n', '--netmag', dest='netmag', type=str,
+                        help='CSS3.0 GAED .netmag data file', default=GAED_NETMAG_FILE)
+    parser.add_argument('-r', '--remark', dest='remark', type=str,
+                        help='CSS3.0 GAED .remark data file', default=GAED_REMARK_FILE)
+
+    return parser.parse_args()
+
 def main():
-    # load GAED
-    origins = load_db(GAED_ORIGIN_FILE, origin30, 'from_string')
-    origerrs = load_db(GAED_ORIGERR_FILE, origerr30, 'from_string')
-    netmags = load_db(GAED_NETMAG_FILE, netmag30, 'from_string')
-    remarks = load_db(GAED_REMARK_FILE, remark30, 'from_string')
+    args = read_command()
+
+    logging.info("Searching directory: '{0}', using pattern: '{1}', input origin: '{2}', input origerr: '{3}',"
+                 "input netmag: '{4}', input remark: '{5}'\n\n".format(args.directory, args.pattern, args.origin,
+                                                                       args.origerr, args.netmag, args.remark))
+    converter = Converter(args.origin, args.origerr, args.netmag, args.remark)
+    converter.process_eqlocls(args.directory, args.pattern)
 
     origin_out = file(ORIGIN_OUT, 'w')
     origerr_out = file(ORIGERR_OUT, 'w')
-    netmag_out = file(NETMAG_OUT, 'w')
+    # netmag_out = file(NETMAG_OUT, 'w')
     remark_out = file(REMARK_OUT, 'w')
 
-    # used for its default values for comparison
-    emptyoer = origerr30()
-
-    # set ids to ones after the last largest, will increment when inserting new entries
-    originid = orid = max(origins, key=lambda origin: origin.orid).orid + 1
-    mlid = max(origins, key=lambda origin: origin.mlid).mlid + 1
-    mbid = max(origins, key=lambda origin: origin.mbid).mbid + 1
-    msid = max(origins, key=lambda origin: origin.msid).msid + 1
-
-    # go through each file in EQLOCL path that matches the file name pattern (e.g., contains 'MUN' and ends in '.txt')
-    for filename in glob.glob(EQLOCL_ROOT + FILE_NAME_PATTERN):
-        eq = EqLocl()
-        eq.parse(filename)
-
-        if len(eq.get('arrival') or 0) < 1:  # this file has no arrivals
-            logging.info('no arrivals in ' + filename + ', skipping')
-            continue
-
-        try:
-            # get eqlocl date
-            # some eqlocl files have empty year/month/day fields. skip these files
-            # purposely omit seconds field, because we want to use the arrival's seconds, not the eqlocl file's second
-
-            eq_date = datetime(year=int(eq.get('year')),
-                               month=int(eq.get('month')),
-                               day=int(eq.get('day')),
-                               hour=int(eq.get('hour')),
-                               minute=int(eq.get('minute')))
-        except:
-            logging.info('cannot parse  invalid date in ' + filename + ', skipping')
-            continue
-
-        for id in eq.db['arrival']:
-
-            # arrival time is: eqlocl time (excluding its seconds) + arrival second (and fractional second)
-            arrival = eq.db['arrival'][id]
-            arrival_seconds, arrival_frac_secs = arrival['time'].split('.')
-            arrival_offset = timedelta(seconds=int(arrival_seconds),
-                                       microseconds=int(arrival_frac_secs))
-            arrival_epoch = get_epoch(eq_date + arrival_offset)
-
-            # find the origin with the closest time to this arrival
-            # that is, find the origin with the smallest difference in time from the arrival time
-            closest_origin = min(origins, key=lambda origin: abs(origin.time - arrival_epoch))
-
-            # how close in time is the arrival to the origin time
-            time_diff = abs(closest_origin.time - arrival_epoch)
-
-            # make Eqlocl lat & lon same precision as CSS3.0
-            eqlocl_lat = "%9.4f" % float(eq.db['latitude'].strip())
-            eqlocl_lon = "%9.4f" % float(eq.db['longitude'].strip())
-
-            # how close together is the lat/long between the origin and arrival
-            pos_diff = abs(vincenty((float(closest_origin.lat), float(closest_origin.lon)), (eqlocl_lat, eqlocl_lon)))
-
-            if time_diff <= 2.0 and pos_diff <= 0.1:  # close
-                if time_diff <= 0.1 and pos_diff <= 0.01:  # very close, so same origin
-                    # don't change origin information
-                    logging.info('found same origin ' + str(closest_origin.orid) + ' in ' + filename)
-
-                    # store origin id of closest match for use in further .origerr, .netmag, etc. tables
-                    originid = closest_origin.orid
-
-                else:  # new origin entry, but same event
-
-                    year = eq.get('revision.year') or eq.get('revison.year')
-                    month = eq.get('revision.month') or eq.get('revison.month')
-                    day = eq.get('revision.day') or eq.get('revison.day')
-                    day_of_year = datetime(year=int(year.strip()),
-                                           month=int(month.strip()),
-                                           day=int(day.strip())).timetuple().tm_yday
-
-                    ori = origin30(lat=float(eqlocl_lat),
-                                   lon=float(eqlocl_lon),
-                                   time=arrival_epoch,  # shouldn't use arrival seconds? then use seconds of eqlocl
-                                   orid=orid,  # next largest orid in origin table
-                                   evid=closest_origin.evid,
-                                   jdate=julday(eq_date),
-                                   commid=originid,
-                                   depth=mk_float(eq.get('depth')),
-                                   dtype=eq.get('depthcode'),
-                                   nass=mk_int(eq.get('NumTriggers')),
-                                   ndef=mk_int(eq.get('NumUndeferredTriggers')),
-                                   auth='{0}  {1}{2}   {3}'.format((eq.get('source') or '   '), year[1:4],
-                                                                   str(day_of_year)[0:4],
-                                                                   eq.get('username')[0:4]),
-                                   algorithm="EQLOCL " + eq.get('currentModel') or ''
-                                   )
-
-                    mag_type = eq.get('preferredMagnitude.type')
-                    mag_value = float(eq.get('preferredMagnitude.value'))
-
-                    if mag_type and mag_value:
-                        if mag_type == 'ML':
-                            ori.ml = mag_value
-                            ori.mlid = mlid
-                            mlid += 1
-                        elif mag_type == 'MB':
-                            ori.mb = mag_value
-                            ori.mbid = mbid
-                            mbid += 1
-                        elif mag_type == 'MS' or mag_type == 'MW':
-                            ori.ms = mag_value
-                            ori.msid = msid
-                            msid += 1
-
-                    logging.info('Adding new origin from arrival in ' + filename + '\n' +
-                                 ori.create_css_string())
-
-                    origins.append(ori)
-
-                    originid = orid  # store last origin id for use in .origerr, .netmag, etc. tables
-                    orid += 1
-
-                # Insert new parameters for origerr, arrival, assoc, remark, netmag tables
-
-                code = eq.get('accuracyCode')
-                oer = origerr30(orid=originid,  # either last orid, or closest 'same' origin id
-                                stime=float(eq.get('uncertainty.time')),
-                                sminax=float(eq.get('uncertainty.east')),
-                                smajax=float(eq.get('uncertainty.north')),
-                                strike=float(eq.get('uncertainty.depth')),
-                                conf=accuracy_codes[code.lower()] if code and code.lower() in accuracy_codes else None,
-                                sdobs=mk_float(eq.get('standardDeviation'))
-                                )
-
-                if originid > len(origerrs):  # new record
-                    origerrs.append(oer)
-                    logging.info('Adding new origerr ' + str(oer.orid) + oer.create_css_string())
-                else:
-                    # fill in old record with new data (preserve old non-empty data)
-                    origerrs[originid - 1], modified = fill_empty(old=origerrs[originid - 1],
-                                                                  new=oer,
-                                                                  empty_ref=origerr30(),
-                                                                  key='orid')
-                    if modified:
-                        logging.info('Modified origerr orid=' + str(originid) + ': ' + modified)
-
-                # remark.remark
-                rem = remark30(commid=originid,
-                               remark=(eq.get('nearestPlace.name') or '') +
-                                      (eq.get('nearestPlace.state') or '') or None)
-
-                if originid > len(remarks):
-                    remarks.append(rem)
-                    logging.info('Adding new remark' + str(rem.commid) + rem.create_css_string())
-                else:
-                    remarks[originid - 1], modified = fill_empty(old=remarks[originid - 1],
-                                                                 new=rem,
-                                                                 empty_ref=remark30(),
-                                                                 key='commid')
-                    if modified:
-                        logging.info('Modified remark commid=' + str(originid) + ': ' + modified)
-
-        # eq.debug()
-
     # write out all the newly associated files (with additions & modifications)
-    origin_out.write(''.join(map(lambda o: o.create_css_string(), origins)))
-    origerr_out.write(''.join(map(lambda o: o.create_css_string(), origerrs)))
-    remark_out.write(''.join(map(lambda o: o.create_css_string(), remarks)))
+    origin_out.write(converter.output_origin())
+    origerr_out.write(converter.output_origerr())
+    remark_out.write(converter.output_remark())
+
+    logging.info("\n\nWritten to '{0}', '{1}', '{2}'".format(ORIGIN_OUT, ORIGERR_OUT, REMARK_OUT))
 
 if __name__ == '__main__':
     main()
-
-
-# print json.dumps(eqlocl, indent=4)
-#
