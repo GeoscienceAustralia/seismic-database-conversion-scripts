@@ -44,35 +44,36 @@ def julday(dt):
     tt = dt.timetuple()
     return tt.tm_year * 1000 + tt.tm_yday
 
-def add(t, path, v):
-    """
-    convert line to nested dictionary entries.
-        e.g., "arrival.sitename.1 = WR1" becomes { "arrival": { "sitename": { "1": { "value": "WR1" } } } }
 
-    :param t: dictionary
-    :param path: list of the variable name which is originally '.'-delimited
-           e.g., ['magnitude', 'sitename', '0'] or ['version']
-    :param v: the variable value
-    :return:
-    """
-    for node in path:
-        k = node.strip()
-        t.setdefault(k, {})
-        t = t[k]
+def mk_float(s):
+    if s is not None:
+        s = s.strip()
+        if len(s) > 0:
+            return float(s)
+    return None
 
-    t['value'] = v
+
+def mk_int(s):
+    if s is not None:
+        s = s.strip()
+        if len(s) > 0:
+            return int(s)
+    return None
+
 
 def get_epoch(dt):
     return (dt - datetime(1970, 1, 1)).total_seconds()
 
-def getval(eqlocl, var):
-    if var in eqlocl and len(eqlocl[var]['value'].strip()) > 0:
-        return eqlocl[var]['value'].strip()
-    else:
-        return None
-
 
 def load_db(file, dbtype, method_str):
+    """
+    Parses each line in file by processing it through a method of the dtype object
+
+    :param file: which file to parse
+    :param dbtype: the class for the data type
+    :param method_str: the method (from the data type class) to use for parsing
+    :return: an array of objects from the dtype class, with data parsed from each line
+    """
     db = []
     with open(file, 'r') as db_in:
         for line in db_in:
@@ -113,6 +114,37 @@ def fill_empty(new=None,
     return old, modified
 
 
+class EqLocl(object):
+    def __init__(self):
+        self.db = {}
+
+    def add(self, path, value):
+        cols = path.split('.')
+        if cols[-1].isdigit():
+            self.db.setdefault(cols[0], {})
+            self.db[cols[0]].setdefault(cols[2], {})
+            self.db[cols[0]][cols[2]][cols[1]] = value
+        else:
+            self.db[path] = value
+
+    def get(self, path):
+        if path in self.db and len(self.db[path]) > 0:
+            return self.db[path]
+        else:
+            return None
+
+    def parse(self, filename):
+        with open(filename, 'r') as eqlocl_file:
+            for line in eqlocl_file:
+                if line.strip():  # non-empty
+                    key, value = line.split('=')
+
+                    self.add(path=key.strip(), value=value.strip())
+
+
+    def debug(self):
+        print(json.dumps(self.db, indent=4))
+
 def main():
     # load GAED
     origins = load_db(GAED_ORIGIN_FILE, origin30, 'from_string')
@@ -136,33 +168,32 @@ def main():
 
     # go through each file in EQLOCL path that matches the file name pattern (e.g., contains 'MUN' and ends in '.txt')
     for filename in glob.glob(EQLOCL_ROOT + FILE_NAME_PATTERN):
-        eqlocl = {}
-        with open(filename, 'r') as eqlocl_file:
-            for line in eqlocl_file:
-                if line.strip():  # non-empty
-                    key, value = line.split('=')
-                    add(t=eqlocl, path=key.split('.'), v=value.strip())
+        eq = EqLocl()
+        eq.parse(filename)
 
-        if 'time' not in eqlocl['arrival']:  # this file has no arrivals
+        if len(eq.get('arrival') or 0) < 1:  # this file has no arrivals
             logging.info('no arrivals in ' + filename + ', skipping')
             continue
 
         try:
             # get eqlocl date
             # some eqlocl files have empty year/month/day fields. skip these files
-            # purposely omit second field, because we want to use the arrival's seconds, not the eqlocl file's second
-            eq_date = datetime(year=int(eqlocl['year']['value']),
-                               month=int(eqlocl['month']['value']),
-                               day=int(eqlocl['day']['value']),
-                               hour=int(eqlocl['hour']['value']),
-                               minute=int(eqlocl['minute']['value']))
+            # purposely omit seconds field, because we want to use the arrival's seconds, not the eqlocl file's second
+
+            eq_date = datetime(year=int(eq.get('year')),
+                               month=int(eq.get('month')),
+                               day=int(eq.get('day')),
+                               hour=int(eq.get('hour')),
+                               minute=int(eq.get('minute')))
         except:
             logging.info('cannot parse  invalid date in ' + filename + ', skipping')
             continue
 
-        for id in eqlocl['arrival']['time']:
+        for id in eq.db['arrival']:
+
             # arrival time is: eqlocl time (excluding its seconds) + arrival second (and fractional second)
-            arrival_seconds, arrival_frac_secs = eqlocl['arrival']['time'][id]['value'].split('.')  # arrival offset
+            arrival = eq.db['arrival'][id]
+            arrival_seconds, arrival_frac_secs = arrival['time'].split('.')
             arrival_offset = timedelta(seconds=int(arrival_seconds),
                                        microseconds=int(arrival_frac_secs))
             arrival_epoch = get_epoch(eq_date + arrival_offset)
@@ -175,15 +206,13 @@ def main():
             time_diff = abs(closest_origin.time - arrival_epoch)
 
             # make Eqlocl lat & lon same precision as CSS3.0
-            eqlocl_lat = "%9.4f" % float(eqlocl['latitude']['value'].strip())
-            eqlocl_lon = "%9.4f" % float(eqlocl['longitude']['value'].strip())
+            eqlocl_lat = "%9.4f" % float(eq.db['latitude'].strip())
+            eqlocl_lon = "%9.4f" % float(eq.db['longitude'].strip())
 
             # how close together is the lat/long between the origin and arrival
             pos_diff = abs(vincenty((float(closest_origin.lat), float(closest_origin.lon)), (eqlocl_lat, eqlocl_lon)))
 
-            # if time_diff <= 200 and pos_diff <= 200:  # close
             if time_diff <= 2.0 and pos_diff <= 0.1:  # close
-                # if time_diff <= 200 and pos_diff <= 200:  # very close, so same origin
                 if time_diff <= 0.1 and pos_diff <= 0.01:  # very close, so same origin
                     # don't change origin information
                     logging.info('found same origin ' + str(closest_origin.orid) + ' in ' + filename)
@@ -191,8 +220,15 @@ def main():
                     # store origin id of closest match for use in further .origerr, .netmag, etc. tables
                     originid = closest_origin.orid
 
-                else:
-                    # new origin entry, but same event
+                else:  # new origin entry, but same event
+
+                    year = eq.get('revision.year') or eq.get('revison.year')
+                    month = eq.get('revision.month') or eq.get('revison.month')
+                    day = eq.get('revision.day') or eq.get('revison.day')
+                    day_of_year = datetime(year=int(year.strip()),
+                                           month=int(month.strip()),
+                                           day=int(day.strip())).timetuple().tm_yday
+
                     ori = origin30(lat=float(eqlocl_lat),
                                    lon=float(eqlocl_lon),
                                    time=arrival_epoch,  # shouldn't use arrival seconds? then use seconds of eqlocl
@@ -200,72 +236,20 @@ def main():
                                    evid=closest_origin.evid,
                                    jdate=julday(eq_date),
                                    commid=originid,
-
-                                   # ndp=,
-                                   # grn=,
-                                   # srn=,
-                                   # etype=,
-                                   # depdp=,
-                                   # algorithm=,
-                                   # auth=,
-                                   # lddate=
+                                   depth=mk_float(eq.get('depth')),
+                                   dtype=eq.get('depthcode'),
+                                   nass=mk_int(eq.get('NumTriggers')),
+                                   ndef=mk_int(eq.get('NumUndeferredTriggers')),
+                                   auth='{0}  {1}{2}   {3}'.format((eq.get('source') or '   '), year[1:4],
+                                                                   str(day_of_year)[0:4],
+                                                                   eq.get('username')[0:4]),
+                                   algorithm="EQLOCL " + eq.get('currentModel') or ''
                                    )
 
-                    # origin.auth
-                    auth = list("              ")
-                    if getval(eqlocl, 'source') is not None:
-                        auth[0:3] = getval(eqlocl, 'source')
+                    mag_type = eq.get('preferredMagnitude.type')
+                    mag_value = float(eq.get('preferredMagnitude.value'))
 
-                    # revision might be spelled as 'revison'
-                    if 'revision' in eqlocl and getval(eqlocl['revision'], 'year') is not None:
-                        year = getval(eqlocl['revision'], 'year')  # get '016' from 2016
-                    elif 'revison' in eqlocl and getval(eqlocl['revison'], 'year') is not None:
-                         year = getval(eqlocl['revison'], 'year')  # get '016' from 2016
-                    auth[4:7] = year[1:4]
-
-                    if 'revision' in eqlocl and getval(eqlocl['revision'], 'month') is not None:
-                        month = getval(eqlocl['revision'], 'month')
-                    elif 'revison' in eqlocl and getval(eqlocl['revison'], 'month') is not None:
-                        month = getval(eqlocl['revison'], 'month')
-
-                    if 'revision' in eqlocl and getval(eqlocl['revision'], 'day') is not None:
-                        day = getval(eqlocl['revision'], 'day')
-                    elif 'revison' in eqlocl and getval(eqlocl['revison'], 'day') is not None:
-                        day = getval(eqlocl['revison'], 'day')
-
-                    day_of_year = datetime(year=int(year.strip()),
-                                           month=int(month.strip()),
-                                           day=int(day.strip())).timetuple().tm_yday
-
-                    # auth should now be 'SRC YYYDOY'
-                    auth[7:10] = str(day_of_year)
-
-                    if getval(eqlocl, 'username') is not None:
-                        auth[12:14] = getval(eqlocl, 'username')
-
-                    ori.auth = ''.join(auth)
-
-                    # origin.algorithm
-                    algorithm = "EQLOCL"
-                    if getval(eqlocl, 'currentModel') is not None:
-                        algorithm += " " + getval(eqlocl, 'currentModel')
-                    ori.algorithm = algorithm
-
-                    # origin.depth
-                    if getval(eqlocl, 'depth') is not None:
-                        ori.depth = float(getval(eqlocl, 'depth'))
-
-                    # origin.dtype
-                    if getval(eqlocl, 'depthcode') is not None:
-                        ori.dtype = getval(eqlocl, 'depthcode')
-
-                    # origin.ml, origin.mb, origin.ms
-                    if 'preferredMagnitude' in eqlocl and \
-                            'type' in eqlocl['preferredMagnitude'] and \
-                            'value' in eqlocl['preferredMagnitude']:
-                        mag_type = getval(eqlocl['preferredMagnitude'], 'type')
-                        mag_value = float(getval(eqlocl['preferredMagnitude'], 'value'))
-
+                    if mag_type and mag_value:
                         if mag_type == 'ML':
                             ori.ml = mag_value
                             ori.mlid = mlid
@@ -279,14 +263,6 @@ def main():
                             ori.msid = msid
                             msid += 1
 
-                    # origin.nass
-                    if getval(eqlocl, 'NumTriggers') is not None:
-                        ori.nass = int(getval(eqlocl, 'NumTriggers'))
-
-                    # origin.ndef
-                    if getval(eqlocl, 'NumUndeferredTriggers') is not None:
-                        ori.ndef = int(getval(eqlocl, 'NumUndeferredTriggers'))
-
                     logging.info('Adding new origin from arrival in ' + filename + '\n' +
                                  ori.create_css_string())
 
@@ -296,22 +272,16 @@ def main():
                     orid += 1
 
                 # Insert new parameters for origerr, arrival, assoc, remark, netmag tables
+
+                code = eq.get('accuracyCode')
                 oer = origerr30(orid=originid,  # either last orid, or closest 'same' origin id
-                                stime=float(getval(eqlocl['uncertainty'], 'time')),
-                                sminax=float(getval(eqlocl['uncertainty'], 'east')),
-                                smajax=float(getval(eqlocl['uncertainty'], 'north')),
-                                strike=float(getval(eqlocl['uncertainty'], 'depth')),
+                                stime=float(eq.get('uncertainty.time')),
+                                sminax=float(eq.get('uncertainty.east')),
+                                smajax=float(eq.get('uncertainty.north')),
+                                strike=float(eq.get('uncertainty.depth')),
+                                conf=accuracy_codes[code.lower()] if code and code.lower() in accuracy_codes else None,
+                                sdobs=mk_float(eq.get('standardDeviation'))
                                 )
-
-                # origerr.conf
-                if getval(eqlocl, 'accuracyCode') is not None:
-                    code = getval(eqlocl, 'accuracyCode').lower()
-                    if code in accuracy_codes:
-                        oer.conf = accuracy_codes[code]
-
-                # origerr.sdobs
-                if getval(eqlocl, 'standardDeviation') is not None:
-                    oer.sdobs = float(getval(eqlocl, 'standardDeviation'))
 
                 if originid > len(origerrs):  # new record
                     origerrs.append(oer)
@@ -326,15 +296,9 @@ def main():
                         logging.info('Modified origerr orid=' + str(originid) + ': ' + modified)
 
                 # remark.remark
-                rem = remark30(commid=originid)
-                remark = ''
-
-                if 'nearestPlace' in eqlocl:
-                    if getval(eqlocl['nearestPlace'], 'name') is not None:
-                        remark = getval(eqlocl['nearestPlace'], 'name')
-
-                    if getval(eqlocl['nearestPlace'], 'state') is not None:
-                        remark[:-1] = getval(eqlocl['nearestPlace'], 'state')
+                rem = remark30(commid=originid,
+                               remark=(eq.get('nearestPlace.name') or '') +
+                                      (eq.get('nearestPlace.state') or '') or None)
 
                 if originid > len(remarks):
                     remarks.append(rem)
@@ -347,6 +311,8 @@ def main():
                     if modified:
                         logging.info('Modified remark commid=' + str(originid) + ': ' + modified)
 
+        # eq.debug()
+
     # write out all the newly associated files (with additions & modifications)
     origin_out.write(''.join(map(lambda o: o.create_css_string(), origins)))
     origerr_out.write(''.join(map(lambda o: o.create_css_string(), origerrs)))
@@ -354,6 +320,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 # print json.dumps(eqlocl, indent=4)
 #
