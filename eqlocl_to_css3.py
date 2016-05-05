@@ -21,10 +21,10 @@ import sys
 logging.basicConfig(stream=sys.stdout, filename='log.txt', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 
-GAED_ORIGIN_FILE = 'out.origin'
-GAED_NETMAG_FILE = 'out.netmag'
-GAED_ORIGERR_FILE = 'out.origerr'
-GAED_REMARK_FILE = 'out.remark'
+GAED_ORIGIN_FILE = 'sample_data/sample_css.origin'
+GAED_NETMAG_FILE = 'sample_data/sample_css.netmag'
+GAED_ORIGERR_FILE = 'sample_data/sample_css.origerr'
+GAED_REMARK_FILE = 'sample_data/sample_css.remark'
 
 ORIGIN_OUT = 'eqlocl.origin'
 NETMAG_OUT = 'eqlocl.netmag'
